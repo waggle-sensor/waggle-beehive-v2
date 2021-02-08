@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-logger
+spec:
+  selector:
+    matchLabels:
+      app: data-logger
+  template:
+    metadata:
+      labels:
+        app: data-logger
+    spec:
+      containers:
+      - name: data-logger
+        image: waggle/beehive-data-logger
+        env:
+          - name: RABBITMQ_URL
+            value: amqp://service:service@rabbitmq

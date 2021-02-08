@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  type: NodePort
+  selector:
+    app: rabbitmq
+  ports:
+    - name: rabbitmq-management
+      protocol: TCP
+      port: 15671
+      nodePort: 30001
+    - name: amqp
+      protocol: TCP
+      port: 5671
+      nodePort: 30000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: rabbitmq
+spec:
+  serviceName: rabbitmq
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.8.11-management-alpine
+        volumeMounts:
+          - name: tls
+            mountPath: "/etc/rabbitmq/tls"
+            readOnly: true
+        env:
+          - name: RABBITMQ_DEFAULT_USER
+            value: admin
+          - name: RABBITMQ_DEFAULT_PASSWORD
+            value: admin
+
+          - name: RABBITMQ_SSL_CACERTFILE
+            value: /etc/rabbitmq/tls/tls.crt
+          - name: RABBITMQ_SSL_CERTFILE
+            value: /etc/rabbitmq/tls/tls.crt
+          - name: RABBITMQ_SSL_KEYFILE
+            value: /etc/rabbitmq/tls/tls.key
+
+          - name: RABBITMQ_MANAGEMENT_SSL_CACERTFILE
+            value: /etc/rabbitmq/tls/tls.crt
+          - name: RABBITMQ_MANAGEMENT_SSL_CERTFILE
+            value: /etc/rabbitmq/tls/tls.crt
+          - name: RABBITMQ_MANAGEMENT_SSL_KEYFILE
+            value: /etc/rabbitmq/tls/tls.key
+        ports:
+        - containerPort: 5671
+        - containerPort: 15671
+      volumes:
+        - name: tls
+          secret:
+            secretName: rabbitmq-tls-secret
+# TODO fix volume claims
