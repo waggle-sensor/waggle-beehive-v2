@@ -3,11 +3,9 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "hashicorp/bionic64"
-  config.vm.hostname = "beehive"
 
-  # expose rabbitmq to host
-  config.vm.network :forwarded_port, guest: 30000, host: 5671
-  config.vm.network :forwarded_port, guest: 30001, host: 15671
+  config.vm.hostname = "beehive"
+  config.vm.network "private_network", ip: "10.31.81.200"
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "2048"
