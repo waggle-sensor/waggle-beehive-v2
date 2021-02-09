@@ -1,7 +1,7 @@
 {
     "users": [
         {
-            "name": "data-logger",
+            "name": "message-logger",
             "tags": "",
             "limits": {}
         },
@@ -18,7 +18,7 @@
     ],
     "permissions": [
         {
-            "user": "data-logger",
+            "user": "message-logger",
             "vhost": "/",
             "configure": ".*",
             "write": ".*",

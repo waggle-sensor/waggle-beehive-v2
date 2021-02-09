@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: data-logger
+  name: message-logger
 spec:
   selector:
     matchLabels:
-      app: data-logger
+      app: message-logger
   template:
     metadata:
       labels:
-        app: data-logger
+        app: message-logger
     spec:
       containers:
-      - name: data-logger
-        image: waggle/beehive-data-logger
+      - name: message-logger
+        image: waggle/beehive-message-logger
         env:
           - name: RABBITMQ_HOST
             value: "rabbitmq"
@@ -32,4 +32,4 @@ spec:
       volumes:
         - name: tls
           secret:
-            secretName: data-logger-tls-secret
+            secretName: message-logger-tls-secret
