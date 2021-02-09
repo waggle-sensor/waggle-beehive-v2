@@ -1,3 +1,5 @@
 *.pem
 *.srl
+*.tar
+*.tar.gz
 csr.conf
