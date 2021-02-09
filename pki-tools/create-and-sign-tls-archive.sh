@@ -4,10 +4,9 @@
 cd $(dirname $0)
 
 cn="$1"
-secret_name="$2"
 
-if [ -z "$cn" ] || [ -z "$secret_name" ]; then
-    echo "usage: $0 cn secret-name"
+if [ -z "$cn" ]; then
+    echo "usage: $0 cn archive-name.tar.gz"
     exit 1
 fi
 
@@ -23,15 +22,7 @@ openssl x509 -req -in "$csrfile" -CA cacert.pem -CAkey cakey.pem \
     -CAcreateserial -out "$certfile" -days 365 \
     -extensions v3_ext -extfile csr.conf
 
-# define rabbitmq credentials for beehive services
-if kubectl get secret "$secret_name" &> /dev/null; then
-    kubectl delete secret "$secret_name"
-fi
-
-kubectl create secret generic "$secret_name" \
-    --from-file=cacert.pem="cacert.pem" \
-    --from-file=cert.pem="$certfile" \
-    --from-file=key.pem="$keyfile"
+tar -czf "$cn.tar.gz" cacert.pem cert.pem key.pem
 
 # clean up files which should now be in kubernetes
 rm -f "$keyfile" "$csrfile" "$certfile"
