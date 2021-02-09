@@ -1,3 +1,5 @@
 #!/bin/bash
 
-docker build -t waggle/beehive-data-logger beehive-data-logger && docker push waggle/beehive-data-logger
+for svc in beehive-data-logger beehive-message-generator; do
+    docker build -t "waggle/$svc" "$svc" && docker push "waggle/$svc"
+done

@@ -7,6 +7,7 @@ cd $(dirname $0)
 pki-tools/create-ca.sh
 pki-tools/create-and-sign-tls-secret.sh rabbitmq rabbitmq-tls-secret
 pki-tools/create-and-sign-tls-secret.sh data-logger data-logger-tls-secret
+pki-tools/create-and-sign-tls-secret.sh message-generator message-generator-tls-secret
 
 # define config and secrets for rabbitmq
 if kubectl get secret rabbitmq-config-secret &> /dev/null; then
@@ -19,7 +20,7 @@ kubectl create secret generic rabbitmq-config-secret \
     --from-file=definitions.json=config/rabbitmq/definitions.json
 
 # ensure that rabbitmq is recreated with these credentials
-kubectl delete -f rabbitmq.yaml
-kubectl create -f rabbitmq.yaml
+kubectl apply -f rabbitmq.yaml
+kubectl apply -f data-logger.yaml
 
 # NOTE kubectl exec -i svc/rabbitmq -- rabbitmqctl --timeout 300 import_definitions <<EOF ...

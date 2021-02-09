@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: message-generator
+spec:
+  selector:
+    matchLabels:
+      app: message-generator
+  template:
+    metadata:
+      labels:
+        app: message-generator
+    spec:
+      containers:
+      - name: message-generator
+        image: waggle/beehive-message-generator
+        env:
+          - name: RABBITMQ_HOST
+            value: "rabbitmq"
+          - name: RABBITMQ_PORT
+            value: "5671"
+          - name: RABBITMQ_CACERTFILE
+            value: "/etc/tls/cacert.pem"
+          - name: RABBITMQ_CERTFILE
+            value: "/etc/tls/cert.pem"
+          - name: RABBITMQ_KEYFILE
+            value: "/etc/tls/key.pem"
+        volumeMounts:
+          - name: tls
+            mountPath: "/etc/tls"
+            readOnly: true
+      volumes:
+        - name: tls
+          secret:
+            secretName: message-generator-tls-secret

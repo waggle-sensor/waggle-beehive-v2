@@ -1,30 +1,11 @@
 import argparse
 from os import getenv
 import pika
-import pika.credentials
 import json
-import sys
-import ssl
 import waggle.message as message
-
-
-def message_handler(ch, method, properties, body):
-    try:
-        msg = message.load(body)
-    except Exception:
-        ch.basic_ack(method.delivery_tag)
-        print("failed to parse message", file=sys.stderr, flush=True)
-        return
-
-    log = json.dumps({
-        "timestamp": msg.timestamp,
-        "name": msg.name,
-        "meta": msg.meta,
-        "value": msg.value,
-    }, separators=(",", ":"))
-
-    print(log, flush=True)
-    ch.basic_ack(method.delivery_tag)
+import time
+import random
+import ssl
 
 
 def main():
@@ -37,7 +18,6 @@ def main():
     parser.add_argument("--rabbitmq_certfile", default=getenv("RABBITMQ_CERTFILE", ""))
     parser.add_argument("--rabbitmq_keyfile", default=getenv("RABBITMQ_KEYFILE", ""))
     parser.add_argument("--rabbitmq_exchange", default=getenv("RABBITMQ_EXCHANGE", "waggle.msg"))
-    parser.add_argument("--rabbitmq_queue", default=getenv("RABBITMQ_QUEUE", "logger-messages"))
     args = parser.parse_args()
 
     if args.rabbitmq_username != "":
@@ -65,10 +45,41 @@ def main():
 
     conn = pika.BlockingConnection(params)
     ch = conn.channel()
-    ch.queue_declare(args.rabbitmq_queue, durable=True)
-    ch.queue_bind(args.rabbitmq_queue, args.rabbitmq_exchange, "#")
-    ch.basic_consume(args.rabbitmq_queue, message_handler)
-    ch.start_consuming()
+
+    while True:
+        msg = message.Message(
+            name="env.temperature.gen",
+            timestamp=time.time_ns(),
+            value=random.uniform(0.0, 5.0),
+            meta={"node": "0000000000000001", "plugin": "metsense:1.0.2"})
+        body = message.dump(msg)
+        ch.basic_publish("waggle.msg", routing_key="", body=body)
+
+        msg = message.Message(
+            name="sys.uptime",
+            timestamp=time.time_ns(),
+            value=time.time(),
+            meta={"node": "0000000000000001", "plugin": "status:1.0.0"})
+        body = message.dump(msg)
+        ch.basic_publish("waggle.msg", routing_key="", body=body)
+
+        msg = message.Message(
+            name="sys.uptime",
+            timestamp=time.time_ns(),
+            value=time.time()+1.4,
+            meta={"node": "0000000000000002", "plugin": "status:1.0.0"})
+        body = message.dump(msg)
+        ch.basic_publish("waggle.msg", routing_key="", body=body)
+
+        msg = message.Message(
+            name="sys.uptime",
+            timestamp=time.time_ns(),
+            value=time.time()+2.3,
+            meta={"node": "0000000000000003", "plugin": "status:1.0.0"})
+        body = message.dump(msg)
+        ch.basic_publish("waggle.msg", routing_key="", body=body)
+
+        time.sleep(1)
 
 
 if __name__ == "__main__":
