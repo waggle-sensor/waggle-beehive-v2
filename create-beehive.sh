@@ -14,6 +14,10 @@ if ! files_exist cacert.pem cert.pem key.pem; then
     cp cert.pem cacert.pem
 fi
 
+# TOTO manage these better
+admin_password=admin
+service_password=$(openssl rand -base64 16)
+
 # generate rabbitmq definitions file. this only creates / updates the config of things
 # in this definitions file - other preexisting resources are not affected.
 cat <<EOF > definitions.json
@@ -21,13 +25,13 @@ cat <<EOF > definitions.json
     "users": [
         {
             "name": "admin",
-            "password": "admin",
+            "password": "$admin_password",
             "tags": "administrator",
             "limits": {}
         },
         {
             "name": "service",
-            "password": "service",
+            "password": "$service_password",
             "tags": "",
             "limits": {}
         }
@@ -86,6 +90,7 @@ management.ssl.certfile   = /etc/rabbitmq/cert.pem
 management.ssl.keyfile    = /etc/rabbitmq/key.pem
 EOF
 
+# define config and secrets for rabbitmq
 kubectl create secret generic rabbitmq-config-secret \
     --from-file=rabbitmq.conf=rabbitmq.conf \
     --from-file=definitions.json=definitions.json \
@@ -93,18 +98,9 @@ kubectl create secret generic rabbitmq-config-secret \
     --from-file=cert.pem=cert.pem \
     --from-file=key.pem=key.pem
 
-# kubectl create -f rabbitmq.yaml
+# define rabbitmq credentials for beehive services
+kubectl create secret generic rabbitmq-service-secret \
+    --from-literal=RABBITMQ_USERNAME="service" \
+    --from-literal=RABBITMQ_PASSWORD="$service_password"
 
-# echo "waiting for rabbitmq"
-
-# while ! kubectl exec svc/rabbitmq -- rabbitmqctl await_startup --timeout 300; do
-#     sleep 1
-# done
-
-# setup_rabbitmq_user "admin" "admin" ".*" ".*" ".*"
-# setup_rabbitmq_user "service" "service" "^$" ".*" ".*"
-
-# # TODO extract config management as we get there
-# kubectl create secret generic rabbitmq-service-secret \
-#     --from-literal=RABBITMQ_SERVICE_USER=service \
-#     --from-literal=RABBITMQ_SERVICE_PASSWORD=service
+kubectl create -f rabbitmq.yaml
