@@ -12,7 +12,11 @@ rabbitmqctl set_permissions \"$user\" \".*\" \".*\" \".*\"
 kubectl create -f rabbitmq.yaml
 
 echo "waiting for rabbitmq"
-kubectl exec svc/rabbitmq -- rabbitmqctl await_startup --timeout 300
+
+while ! kubectl exec svc/rabbitmq -- rabbitmqctl await_startup --timeout 300; do
+    sleep 1
+done
+
 setup_rabbitmq_user admin admin
 setup_rabbitmq_user service service
 

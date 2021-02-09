@@ -1,19 +1,10 @@
 import argparse
 import pika
 import waggle.message as message
-import os
 import json
 import sys
 import ssl
-
-
-RABBITMQ_HOST = os.environ.get("RABBITMQ_HOST", "localhost")
-RABBITMQ_PORT = int(os.environ.get("RABBITMQ_PORT", "5671"))
-RABBITMQ_USERNAME = os.environ.get("RABBITMQ_USERNAME", "guest")
-RABBITMQ_PASSWORD = os.environ.get("RABBITMQ_PASSWORD", "guest")
-RABBITMQ_SSL_CACERTFILE = os.environ.get("RABBITMQ_SSL_CACERTFILE")
-RABBITMQ_EXCHANGE = os.environ.get("RABBITMQ_EXCHANGE", "waggle.msg")
-RABBITMQ_QUEUE = os.environ.get("RABBITMQ_QUEUE", "logger-messages")
+from os import getenv
 
 
 def message_handler(ch, method, properties, body):
@@ -36,19 +27,29 @@ def message_handler(ch, method, properties, body):
 
 
 def main():
-    credentials = pika.PlainCredentials(RABBITMQ_USERNAME, RABBITMQ_PASSWORD)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--rabbitmq_host",default=getenv("RABBITMQ_HOST", "localhost"))
+    parser.add_argument("--rabbitmq_port", default=getenv("RABBITMQ_PORT", "5672"), type=int)
+    parser.add_argument("--rabbitmq_username", default=getenv("RABBITMQ_USERNAME", "guest"))
+    parser.add_argument("--rabbitmq_password", default=getenv("RABBITMQ_PASSWORD", "guest"))
+    parser.add_argument("--rabbitmq_ssl_cacertfile", default=getenv("RABBITMQ_SSL_CACERTFILE"))
+    parser.add_argument("--rabbitmq_exchange", default=getenv("RABBITMQ_EXCHANGE", "waggle.msg"))
+    parser.add_argument("--rabbitmq_queue", default=getenv("RABBITMQ_QUEUE", "logger-messages"))
+    args = parser.parse_args()
 
-    if RABBITMQ_SSL_CACERTFILE is not None:
-        context = ssl.create_default_context(cafile=RABBITMQ_SSL_CACERTFILE)
+    credentials = pika.PlainCredentials(args.rabbitmq_username, args.rabbitmq_password)
+
+    if args.rabbitmq_ssl_cacertfile is not None:
+        context = ssl.create_default_context(cafile=args.rabbitmq_ssl_cacertfile)
         # HACK this allows the host and baked in host to be configured independently
         context.check_hostname = False
-        ssl_options = pika.SSLOptions(context, RABBITMQ_HOST)
+        ssl_options = pika.SSLOptions(context, args.rabbitmq_host)
     else:
         ssl_options = None
 
     params = pika.ConnectionParameters(
-        host=RABBITMQ_HOST,
-        port=RABBITMQ_PORT,
+        host=args.rabbitmq_host,
+        port=args.rabbitmq_port,
         credentials=credentials,
         ssl_options=ssl_options,
         retry_delay=60,
@@ -57,9 +58,9 @@ def main():
 
     conn = pika.BlockingConnection(params)
     ch = conn.channel()
-    ch.queue_declare(RABBITMQ_QUEUE, durable=True)
-    ch.queue_bind(RABBITMQ_QUEUE, RABBITMQ_EXCHANGE, "#")
-    ch.basic_consume(RABBITMQ_QUEUE, message_handler)
+    ch.queue_declare(args.rabbitmq_queue, durable=True)
+    ch.queue_bind(args.rabbitmq_queue, args.rabbitmq_exchange, "#")
+    ch.basic_consume(args.rabbitmq_queue, message_handler)
     ch.start_consuming()
 
 

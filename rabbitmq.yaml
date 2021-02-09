@@ -47,34 +47,39 @@ spec:
             value: "-proto_dist inet_tls"
 
           - name: RABBITMQ_SSL_CACERTFILE
-            value: /etc/rabbitmq/tls/tls.crt
+            value: "/etc/rabbitmq/tls/tls.crt"
           - name: RABBITMQ_SSL_CERTFILE
-            value: /etc/rabbitmq/tls/tls.crt
+            value: "/etc/rabbitmq/tls/tls.crt"
           - name: RABBITMQ_SSL_KEYFILE
-            value: /etc/rabbitmq/tls/tls.key
+            value: "/etc/rabbitmq/tls/tls.key"
+          - name: RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT
+            value: "no"
 
           - name: RABBITMQ_MANAGEMENT_SSL_CACERTFILE
-            value: /etc/rabbitmq/tls/tls.crt
+            value: "/etc/rabbitmq/tls/tls.crt"
           - name: RABBITMQ_MANAGEMENT_SSL_CERTFILE
-            value: /etc/rabbitmq/tls/tls.crt
+            value: "/etc/rabbitmq/tls/tls.crt"
           - name: RABBITMQ_MANAGEMENT_SSL_KEYFILE
-            value: /etc/rabbitmq/tls/tls.key
+            value: "/etc/rabbitmq/tls/tls.key"
+          - name: RABBITMQ_MANAGEMENT_SSL_FAIL_IF_NO_PEER_CERT
+            value: "no"
         ports:
         - containerPort: 5671
         - containerPort: 15671
-        livenessProbe:
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 30
-          exec:
-            command: ["rabbitmqctl", "node_health_check"]
-        readinessProbe:
-          initialDelaySeconds: 10
-          timeoutSeconds: 5
-          periodSeconds: 1
-          failureThreshold: 10
-          exec:
-            command: ["rabbitmqctl", "node_health_check"]
+        # rabbitmqctl node_health_check is deprecated. need a higher level health check anyway
+        # livenessProbe:
+        #   initialDelaySeconds: 10
+        #   timeoutSeconds: 5
+        #   failureThreshold: 30
+        #   exec:
+        #     command: ["rabbitmqctl", "node_health_check"]
+        # readinessProbe:
+        #   initialDelaySeconds: 10
+        #   timeoutSeconds: 5
+        #   periodSeconds: 1
+        #   failureThreshold: 10
+        #   exec:
+        #     command: ["rabbitmqctl", "node_health_check"]
       volumes:
         - name: tls
           secret:
