@@ -14,6 +14,14 @@ spec:
       containers:
       - name: data-logger
         image: waggle/beehive-data-logger
+        volumeMounts:
+          - name: tls
+            mountPath: "/etc/rabbitmq/tls"
+            readOnly: true
         env:
           - name: RABBITMQ_URL
             value: amqp://service:service@rabbitmq
+      volumes:
+        - name: tls
+          secret:
+            secretName: rabbitmq-tls-secret

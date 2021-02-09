@@ -3,7 +3,7 @@
 setup_rabbitmq_user() {
     user="$1"
     password="$2"
-    kubectl exec service/rabbitmq -- bash -c "
+    kubectl exec svc/rabbitmq -- bash -c "
 rabbitmqctl add_user \"$user\" \"$password\" || rabbitmqctl change_password \"$user\" \"$password\"
 rabbitmqctl set_permissions \"$user\" \".*\" \".*\" \".*\"
 "
@@ -12,8 +12,7 @@ rabbitmqctl set_permissions \"$user\" \".*\" \".*\" \".*\"
 kubectl create -f rabbitmq.yaml
 
 echo "waiting for rabbitmq"
-kubectl exec service/rabbitmq -- rabbitmqctl await_startup --timeout 300
-
+kubectl exec svc/rabbitmq -- rabbitmqctl await_startup --timeout 300
 setup_rabbitmq_user admin admin
 setup_rabbitmq_user service service
 

@@ -7,14 +7,14 @@ spec:
   selector:
     app: rabbitmq
   ports:
-    - name: rabbitmq-management
-      protocol: TCP
-      port: 15671
-      nodePort: 30001
-    - name: amqp
+    - name: amqps
       protocol: TCP
       port: 5671
       nodePort: 30000
+    - name: rabbitmq-management-https
+      protocol: TCP
+      port: 15671
+      nodePort: 30001
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -42,6 +42,9 @@ spec:
             value: admin
           - name: RABBITMQ_DEFAULT_PASSWORD
             value: admin
+          # This was something I had to do to get rabbitmqctl to work when using TLS...
+          - name: RABBITMQ_CTL_ERL_ARGS
+            value: "-proto_dist inet_tls"
 
           - name: RABBITMQ_SSL_CACERTFILE
             value: /etc/rabbitmq/tls/tls.crt
@@ -59,6 +62,19 @@ spec:
         ports:
         - containerPort: 5671
         - containerPort: 15671
+        livenessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
+        readinessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 1
+          failureThreshold: 10
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
       volumes:
         - name: tls
           secret:
