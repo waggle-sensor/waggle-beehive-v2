@@ -10,9 +10,9 @@ if [ -z "$cn" ]; then
     exit 1
 fi
 
-keyfile="$cn.key.pem"
-csrfile="$cn.csr.pem"
-certfile="$cn.cert.pem"
+keyfile="key.pem"
+csrfile="csr.pem"
+certfile="cert.pem"
 
 openssl genrsa -out "$keyfile" 2048
 
@@ -22,7 +22,6 @@ openssl x509 -req -in "$csrfile" -CA cacert.pem -CAkey cakey.pem \
     -CAcreateserial -out "$certfile" -days 365 \
     -extensions v3_ext -extfile csr.conf
 
-tar -czf "$cn.tar.gz" cacert.pem cert.pem key.pem
-
-# clean up files which should now be in kubernetes
+tar -czf "$cn.tar.gz" "$keyfile" "$csrfile" "$certfile"
+# clean up files which should now be in archive
 rm -f "$keyfile" "$csrfile" "$certfile"
