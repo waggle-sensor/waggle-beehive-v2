@@ -14,22 +14,28 @@ spec:
       containers:
       - name: data-logger
         image: waggle/beehive-data-logger
-        volumeMounts:
-          - name: tls
-            mountPath: "/etc/rabbitmq/tls"
-            readOnly: true
         env:
           - name: RABBITMQ_HOST
             value: "rabbitmq"
           - name: RABBITMQ_PORT
             value: "5671"
           - name: RABBITMQ_USERNAME
-            value: "service"
+            valueFrom:
+              secretKeyRef:
+                name: beehive-service-secret
+                key: username
           - name: RABBITMQ_PASSWORD
-            value: "service"
+            valueFrom:
+              secretKeyRef:
+                name: beehive-service-secret
+                key: password
           - name: RABBITMQ_SSL_CACERTFILE
-            value: "/etc/rabbitmq/tls/tls.crt"
+            value: "/etc/beehive-service/cacert.pem"
+        volumeMounts:
+          - name: beehive-service-secret
+            mountPath: "/etc/beehive-service"
+            readOnly: true
       volumes:
-        - name: tls
+        - name: beehive-service-secret
           secret:
-            secretName: rabbitmq-tls-secret
+            secretName: beehive-service-secret

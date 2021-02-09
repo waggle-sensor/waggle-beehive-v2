@@ -1,18 +1,8 @@
 #!/bin/bash
 
-files_exist() {
-    for f in $*; do
-        if ! test -e "$f"; then
-            return 1
-        fi
-    done
-}
-
 # using a self-signed certificate for all public tls endpoints for now.
-if ! files_exist cacert.pem cert.pem key.pem; then
-    openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem -subj "/CN=beehive"
-    cp cert.pem cacert.pem
-fi
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem -subj "/CN=beehive"
+cp cert.pem cacert.pem
 
 # TOTO manage these better
 admin_password=admin
@@ -52,7 +42,7 @@ cat <<EOF > definitions.json
         {
             "user": "service",
             "vhost": "/",
-            "configure": "^$",
+            "configure": ".*",
             "write": ".*",
             "read": ".*"
         }
@@ -79,18 +69,22 @@ EOF
 cat <<EOF > rabbitmq.conf
 load_definitions = /etc/rabbitmq/definitions.json
 
+listeners.ssl.default = 5671
+listeners.tcp = none
 ssl_options.cacertfile           = /etc/rabbitmq/cacert.pem
 ssl_options.certfile             = /etc/rabbitmq/cert.pem
 ssl_options.keyfile              = /etc/rabbitmq/key.pem
 ssl_options.fail_if_no_peer_cert = false
 # ssl_options.verify               = verify_peer
 
+management.ssl.port       = 15671
 management.ssl.cacertfile = /etc/rabbitmq/cacert.pem
 management.ssl.certfile   = /etc/rabbitmq/cert.pem
 management.ssl.keyfile    = /etc/rabbitmq/key.pem
 EOF
 
 # define config and secrets for rabbitmq
+kubectl delete secret rabbitmq-config-secret
 kubectl create secret generic rabbitmq-config-secret \
     --from-file=rabbitmq.conf=rabbitmq.conf \
     --from-file=definitions.json=definitions.json \
@@ -99,8 +93,15 @@ kubectl create secret generic rabbitmq-config-secret \
     --from-file=key.pem=key.pem
 
 # define rabbitmq credentials for beehive services
-kubectl create secret generic rabbitmq-service-secret \
-    --from-literal=RABBITMQ_USERNAME="service" \
-    --from-literal=RABBITMQ_PASSWORD="$service_password"
+kubectl delete secret beehive-service-secret
+kubectl create secret generic beehive-service-secret \
+    --from-file=cacert.pem=cacert.pem \
+    --from-literal=username="service" \
+    --from-literal=password="$service_password"
 
+# clean up all configs and secrets now that they should be in kubernetes
+rm -f rabbitmq.conf definitions.json cacert.pem cert.pem key.pem
+
+# ensure that rabbitmq is recreated with these credentials
+kubectl delete -f rabbitmq.yaml
 kubectl create -f rabbitmq.yaml
