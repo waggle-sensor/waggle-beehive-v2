@@ -34,54 +34,19 @@ spec:
       - name: rabbitmq
         image: rabbitmq:3.8.11-management-alpine
         volumeMounts:
-          - name: tls
-            mountPath: "/etc/rabbitmq/tls"
+          - name: config
+            mountPath: "/etc/rabbitmq"
             readOnly: true
         env:
-          - name: RABBITMQ_DEFAULT_USER
-            value: admin
-          - name: RABBITMQ_DEFAULT_PASSWORD
-            value: admin
           # This was something I had to do to get rabbitmqctl to work when using TLS...
           - name: RABBITMQ_CTL_ERL_ARGS
             value: "-proto_dist inet_tls"
-
-          - name: RABBITMQ_SSL_CACERTFILE
-            value: "/etc/rabbitmq/tls/tls.crt"
-          - name: RABBITMQ_SSL_CERTFILE
-            value: "/etc/rabbitmq/tls/tls.crt"
-          - name: RABBITMQ_SSL_KEYFILE
-            value: "/etc/rabbitmq/tls/tls.key"
-          - name: RABBITMQ_SSL_FAIL_IF_NO_PEER_CERT
-            value: "no"
-
-          - name: RABBITMQ_MANAGEMENT_SSL_CACERTFILE
-            value: "/etc/rabbitmq/tls/tls.crt"
-          - name: RABBITMQ_MANAGEMENT_SSL_CERTFILE
-            value: "/etc/rabbitmq/tls/tls.crt"
-          - name: RABBITMQ_MANAGEMENT_SSL_KEYFILE
-            value: "/etc/rabbitmq/tls/tls.key"
-          - name: RABBITMQ_MANAGEMENT_SSL_FAIL_IF_NO_PEER_CERT
-            value: "no"
         ports:
         - containerPort: 5671
         - containerPort: 15671
-        # rabbitmqctl node_health_check is deprecated. need a higher level health check anyway
-        # livenessProbe:
-        #   initialDelaySeconds: 10
-        #   timeoutSeconds: 5
-        #   failureThreshold: 30
-        #   exec:
-        #     command: ["rabbitmqctl", "node_health_check"]
-        # readinessProbe:
-        #   initialDelaySeconds: 10
-        #   timeoutSeconds: 5
-        #   periodSeconds: 1
-        #   failureThreshold: 10
-        #   exec:
-        #     command: ["rabbitmqctl", "node_health_check"]
+      # add liveness check or use higher level controller
       volumes:
-        - name: tls
+        - name: config
           secret:
-            secretName: rabbitmq-tls-secret
+            secretName: rabbitmq-config-secret
 # TODO fix volume claims
