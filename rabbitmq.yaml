@@ -35,7 +35,10 @@ spec:
         image: rabbitmq:3.8.11-management-alpine
         volumeMounts:
           - name: config
-            mountPath: "/etc/rabbitmq"
+            mountPath: /etc/rabbitmq
+            readOnly: true
+          - name: tls
+            mountPath: "/etc/tls"
             readOnly: true
         env:
           # This was something I had to do to get rabbitmqctl to work when using TLS...
@@ -49,4 +52,7 @@ spec:
         - name: config
           secret:
             secretName: rabbitmq-config-secret
+        - name: tls
+          secret:
+            secretName: rabbitmq-tls-secret
 # TODO fix volume claims

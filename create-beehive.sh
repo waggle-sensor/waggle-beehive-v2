@@ -1,27 +1,57 @@
 #!/bin/bash
 
-# using a self-signed certificate for all public tls endpoints for now.
-openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem -subj "/CN=beehive"
-cp cert.pem cacert.pem
+# ensure working in beehive-v2 directory
+cd $(dirname $0)
 
-# TOTO manage these better
-admin_password=admin
-service_password=$(openssl rand -base64 16)
+# create dev/test tls credentials for beehive services
+pki-tools/create-ca.sh
+pki-tools/create-and-sign-tls-secret.sh rabbitmq rabbitmq-tls-secret
+pki-tools/create-and-sign-tls-secret.sh data-logger data-logger-tls-secret
 
+# define rabbitmq config
+cat <<EOF > rabbitmq.conf
+load_definitions = /etc/rabbitmq/definitions.json
+
+default_vhost = /
+default_user = admin
+default_pass = admin
+
+default_permissions.configure = .*
+default_permissions.read = .*
+default_permissions.write = .*
+
+listeners.tcp = none
+listeners.ssl.default = 5671
+ssl_options.cacertfile           = /etc/tls/cacert.pem
+ssl_options.certfile             = /etc/tls/cert.pem
+ssl_options.keyfile              = /etc/tls/key.pem
+ssl_options.fail_if_no_peer_cert = false
+ssl_options.verify               = verify_peer
+
+auth_mechanisms.1 = PLAIN
+auth_mechanisms.2 = AMQPLAIN
+auth_mechanisms.3 = EXTERNAL
+
+ssl_cert_login_from   = common_name
+
+management.ssl.port       = 15671
+management.ssl.cacertfile = /etc/tls/cacert.pem
+management.ssl.certfile   = /etc/tls/cert.pem
+management.ssl.keyfile    = /etc/tls/key.pem
+EOF
+
+cat <<EOF > enabled_plugins
+[rabbitmq_prometheus,rabbitmq_management,rabbitmq_management_agent,rabbitmq_auth_mechanism_ssl].
+EOF
+
+# no... this is something better to apply later and dynamicaally
 # generate rabbitmq definitions file. this only creates / updates the config of things
 # in this definitions file - other preexisting resources are not affected.
 cat <<EOF > definitions.json
 {
     "users": [
         {
-            "name": "admin",
-            "password": "$admin_password",
-            "tags": "administrator",
-            "limits": {}
-        },
-        {
-            "name": "service",
-            "password": "$service_password",
+            "name": "data-logger",
             "tags": "",
             "limits": {}
         }
@@ -33,14 +63,7 @@ cat <<EOF > definitions.json
     ],
     "permissions": [
         {
-            "user": "admin",
-            "vhost": "/",
-            "configure": ".*",
-            "write": ".*",
-            "read": ".*"
-        },
-        {
-            "user": "service",
+            "user": "data-logger",
             "vhost": "/",
             "configure": ".*",
             "write": ".*",
@@ -66,42 +89,21 @@ cat <<EOF > definitions.json
 }
 EOF
 
-cat <<EOF > rabbitmq.conf
-load_definitions = /etc/rabbitmq/definitions.json
-
-listeners.ssl.default = 5671
-listeners.tcp = none
-ssl_options.cacertfile           = /etc/rabbitmq/cacert.pem
-ssl_options.certfile             = /etc/rabbitmq/cert.pem
-ssl_options.keyfile              = /etc/rabbitmq/key.pem
-ssl_options.fail_if_no_peer_cert = false
-# ssl_options.verify               = verify_peer
-
-management.ssl.port       = 15671
-management.ssl.cacertfile = /etc/rabbitmq/cacert.pem
-management.ssl.certfile   = /etc/rabbitmq/cert.pem
-management.ssl.keyfile    = /etc/rabbitmq/key.pem
-EOF
-
 # define config and secrets for rabbitmq
-kubectl delete secret rabbitmq-config-secret
+if kubectl get secret rabbitmq-config-secret &> /dev/null; then
+    kubectl delete secret rabbitmq-config-secret
+fi
+
 kubectl create secret generic rabbitmq-config-secret \
     --from-file=rabbitmq.conf=rabbitmq.conf \
-    --from-file=definitions.json=definitions.json \
-    --from-file=cacert.pem=cacert.pem \
-    --from-file=cert.pem=cert.pem \
-    --from-file=key.pem=key.pem
+    --from-file=enabled_plugins=enabled_plugins \
+    --from-file=definitions.json=definitions.json
 
-# define rabbitmq credentials for beehive services
-kubectl delete secret beehive-service-secret
-kubectl create secret generic beehive-service-secret \
-    --from-file=cacert.pem=cacert.pem \
-    --from-literal=username="service" \
-    --from-literal=password="$service_password"
-
-# clean up all configs and secrets now that they should be in kubernetes
-rm -f rabbitmq.conf definitions.json cacert.pem cert.pem key.pem
+# clean up all configs that should be in kubernetes
+rm -f rabbitmq.conf enabled_plugins definitions.json
 
 # ensure that rabbitmq is recreated with these credentials
 kubectl delete -f rabbitmq.yaml
 kubectl create -f rabbitmq.yaml
+
+# technically, we could move the ca management into k8s and generate service secrets via a service account

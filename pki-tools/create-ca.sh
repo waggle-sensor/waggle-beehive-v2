@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+# ensure working in pki-tools dir
+cd $(dirname $0)
+
 CN=beehive
 
 # generate signing config

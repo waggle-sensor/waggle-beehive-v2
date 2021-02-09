@@ -19,23 +19,17 @@ spec:
             value: "rabbitmq"
           - name: RABBITMQ_PORT
             value: "5671"
-          - name: RABBITMQ_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: beehive-service-secret
-                key: username
-          - name: RABBITMQ_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: beehive-service-secret
-                key: password
-          - name: RABBITMQ_SSL_CACERTFILE
-            value: "/etc/beehive-service/cacert.pem"
+          - name: RABBITMQ_CACERTFILE
+            value: "/etc/tls/cacert.pem"
+          - name: RABBITMQ_CERTFILE
+            value: "/etc/tls/cert.pem"
+          - name: RABBITMQ_KEYFILE
+            value: "/etc/tls/key.pem"
         volumeMounts:
-          - name: beehive-service-secret
-            mountPath: "/etc/beehive-service"
+          - name: tls
+            mountPath: "/etc/tls"
             readOnly: true
       volumes:
-        - name: beehive-service-secret
+        - name: tls
           secret:
-            secretName: beehive-service-secret
+            secretName: data-logger-tls-secret
