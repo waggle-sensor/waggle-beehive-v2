@@ -3,6 +3,27 @@ import json
 import waggle.message as message
 import time
 import random
+import ssl
+
+credentials = pika.PlainCredentials("service", "service")
+
+if args.rabbitmq_ssl_cacertfile is not None:
+    context = ssl.create_default_context(cafile=args.rabbitmq_ssl_cacertfile)
+    # HACK this allows the host and baked in host to be configured independently
+    context.check_hostname = False
+    ssl_options = pika.SSLOptions(context, args.rabbitmq_host)
+else:
+    ssl_options = None
+
+params = pika.ConnectionParameters(
+    host=args.rabbitmq_host,
+    port=args.rabbitmq_port,
+    credentials=credentials,
+    ssl_options=ssl_options,
+    retry_delay=60,
+    socket_timeout=10.0,
+)
+
 
 params = pika.URLParameters("amqp://service:service@localhost")
 conn = pika.BlockingConnection(params)
