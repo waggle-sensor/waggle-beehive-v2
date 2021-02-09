@@ -20,7 +20,7 @@ kubectl create secret generic rabbitmq-config-secret \
     --from-file=definitions.json=config/rabbitmq/definitions.json
 
 # ensure that rabbitmq is recreated with these credentials
-kubectl apply -f rabbitmq.yaml
-kubectl apply -f message-logger.yaml
+kubectl apply -f kubernetes/rabbitmq.yaml
+kubectl apply -f kubernetes/message-logger.yaml
 
 # NOTE kubectl exec -i svc/rabbitmq -- rabbitmqctl --timeout 300 import_definitions <<EOF ...
