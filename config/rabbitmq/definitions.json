@@ -7,7 +7,7 @@
         },
         {
             "name": "message-generator",
-            "tags": "",
+            "tags": "impersonator",
             "limits": {}
         }
     ],
