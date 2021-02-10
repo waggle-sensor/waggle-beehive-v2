@@ -11,7 +11,7 @@ if [ -z "$cn" ] || [ -z "$secret_name" ]; then
     exit 1
 fi
 
-ssh_keyfile="ssh-key-$cn"
+ssh_keyfile="ssh-host-key-$cn"
 
 ssh-keygen -C "$cn ssh key" -N "" -f "$ssh_keyfile"
 ssh-keygen \
@@ -20,6 +20,7 @@ ssh-keygen \
     -I "waggle ssh key" \
     -n "$cn" \
     -V "-5m:+365d" \
+    -h \
     "$ssh_keyfile"
 
 # define rabbitmq credentials for beehive services
@@ -29,8 +30,8 @@ fi
 
 kubectl create secret generic "$secret_name" \
     --from-file=ca.pub="ca.pub" \
-    --from-file=ssh-key="$ssh_keyfile" \
-    --from-file=ssh-key-cert.pub="$ssh_keyfile-cert.pub"
+    --from-file=ssh-host-key="$ssh_keyfile" \
+    --from-file=ssh-host-key-cert.pub="$ssh_keyfile-cert.pub"
 
 # clean up files which should now be in kubernetes
 rm -f "$ssh_keyfile" "$ssh_keyfile.pub" "$ssh_keyfile-cert.pub"
