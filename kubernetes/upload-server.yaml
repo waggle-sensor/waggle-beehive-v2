@@ -3,12 +3,14 @@ kind: Service
 metadata:
   name: upload-server
 spec:
+  type: NodePort
   selector:
     app: upload-server
   ports:
-    - protocol: TCP
-      port: 20021
-      targetPort: 22
+    - name: ssh
+      protocol: TCP
+      port: 22
+      nodePort: 30002
 ---
 # TODO use volume for managing private credentials
 apiVersion: apps/v1
