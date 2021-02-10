@@ -13,11 +13,11 @@ fi
 
 ssh_keyfile="ssh-host-key-$cn"
 
-ssh-keygen -C "$cn ssh key" -N "" -f "$ssh_keyfile"
+ssh-keygen -C "$cn ssh host key" -N "" -f "$ssh_keyfile"
 ssh-keygen \
     -s ca \
     -t rsa-sha2-256 \
-    -I "waggle ssh key" \
+    -I "$cn ssh host key" \
     -n "$cn" \
     -V "-5m:+365d" \
     -h \
@@ -31,6 +31,7 @@ fi
 kubectl create secret generic "$secret_name" \
     --from-file=ca.pub="ca.pub" \
     --from-file=ssh-host-key="$ssh_keyfile" \
+    --from-file=ssh-host-key.pub="$ssh_keyfile.pub" \
     --from-file=ssh-host-key-cert.pub="$ssh_keyfile-cert.pub"
 
 # clean up files which should now be in kubernetes

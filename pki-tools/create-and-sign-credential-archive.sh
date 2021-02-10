@@ -35,7 +35,7 @@ ssh-keygen \
     -V "-5m:+365d" \
     "$ssh_keyfile"
 
-tar -czf "$cn.tar.gz" "cacert.pem" "$keyfile" "$certfile" "ca.pub" "$ssh_keyfile" "$ssh_keyfile-cert.pub"
+tar -czf "$cn.tar.gz" "cacert.pem" "$keyfile" "$certfile" "ca.pub" "$ssh_keyfile" "$ssh_keyfile.pub" "$ssh_keyfile-cert.pub"
 
 # clean up files which should now be in archive
 rm -f "$keyfile" "$csrfile" "$certfile" "$ssh_keyfile" "$ssh_keyfile.pub" "$ssh_keyfile-cert.pub"
