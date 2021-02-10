@@ -53,7 +53,8 @@ def main():
             value=random.uniform(0.0, 5.0),
             meta={"node": "0000000000000001", "plugin": "metsense:1.0.2"})
         body = message.dump(msg)
-        ch.basic_publish("waggle.msg", routing_key="", body=body)
+        properties = pika.BasicProperties(user_id="node-0000000000000001")
+        ch.basic_publish("waggle.msg", routing_key="", properties=properties, body=body)
 
         msg = message.Message(
             name="sys.uptime",
@@ -61,7 +62,8 @@ def main():
             value=time.time(),
             meta={"node": "0000000000000001", "plugin": "status:1.0.0"})
         body = message.dump(msg)
-        ch.basic_publish("waggle.msg", routing_key="", body=body)
+        properties = pika.BasicProperties(user_id="node-0000000000000001")
+        ch.basic_publish("waggle.msg", routing_key="", properties=properties, body=body)
 
         msg = message.Message(
             name="sys.uptime",
@@ -69,7 +71,8 @@ def main():
             value=time.time()+1.4,
             meta={"node": "0000000000000002", "plugin": "status:1.0.0"})
         body = message.dump(msg)
-        ch.basic_publish("waggle.msg", routing_key="", body=body)
+        properties = pika.BasicProperties(user_id="node-0000000000000002")
+        ch.basic_publish("waggle.msg", routing_key="", properties=properties, body=body)
 
         msg = message.Message(
             name="sys.uptime",
@@ -77,7 +80,8 @@ def main():
             value=time.time()+2.3,
             meta={"node": "0000000000000003", "plugin": "status:1.0.0"})
         body = message.dump(msg)
-        ch.basic_publish("waggle.msg", routing_key="", body=body)
+        properties = pika.BasicProperties(user_id="node-0000000000000003")
+        ch.basic_publish("waggle.msg", routing_key="", properties=properties, body=body)
 
         time.sleep(1)
 
