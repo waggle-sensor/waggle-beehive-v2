@@ -10,3 +10,5 @@ The quickest way to deploy a Beehive server for dev/test is use the provided Vag
 2. Run the Vagrant box (`vagrant up`) and connect (`vagrant ssh`).
 3. Inside of the Vaggrant box, `sudo -s` and `cd /vagrant`
 4. Run the `./create-beehive.sh` script.
+
+*These steps are likely to change. The initial plan is to spin up a dev/test Beehive at Vagrant provision time.*
