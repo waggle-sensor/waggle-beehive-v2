@@ -8,6 +8,7 @@ pki-tools/create-ca.sh
 pki-tools/create-and-sign-tls-secret.sh rabbitmq rabbitmq-tls-secret
 pki-tools/create-and-sign-tls-secret.sh message-logger message-logger-tls-secret
 pki-tools/create-and-sign-tls-secret.sh message-generator message-generator-tls-secret
+pki-tools/create-and-sign-ssh-host-key-secret.sh upload-server upload-server-ssh-host-key-secret
 
 # define config and secrets for rabbitmq
 if kubectl get secret rabbitmq-config-secret &> /dev/null; then
@@ -22,5 +23,6 @@ kubectl create secret generic rabbitmq-config-secret \
 # ensure that rabbitmq is recreated with these credentials
 kubectl apply -f kubernetes/rabbitmq.yaml
 kubectl apply -f kubernetes/message-logger.yaml
+kubectl apply -f kubernetes/upload-server.yaml
 
 # NOTE kubectl exec -i svc/rabbitmq -- rabbitmqctl --timeout 300 import_definitions <<EOF ...

@@ -31,7 +31,7 @@ spec:
         - name: ssh
           containerPort: 22
         volumeMounts:
-        - name: beehive-upload-server-secret
+        - name: ssh-host-key
           mountPath: /etc/waggle
           readOnly: true
         livenessProbe:
@@ -40,7 +40,7 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 60
       volumes:
-      - name: beehive-upload-server-secret
+      - name: ssh-host-key
         secret:
-          secretName: beehive-upload-server-secret
+          secretName: upload-server-ssh-host-key-secret
           defaultMode: 0600
