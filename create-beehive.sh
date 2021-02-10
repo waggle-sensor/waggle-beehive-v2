@@ -24,7 +24,7 @@ pki-tools/create-and-sign-tls-secret.sh message-logger message-logger-tls-secret
 kubectl apply -f kubernetes/message-logger.yaml
 
 # deploy upload server
-pki-tools/create-and-sign-ssh-host-key-secret.sh upload-server upload-server-ssh-host-key-secret
+pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server upload-server-ssh-host-key-secret
 kubectl apply -f kubernetes/upload-server.yaml
 
 # create credentials for but don't deploy message generator
