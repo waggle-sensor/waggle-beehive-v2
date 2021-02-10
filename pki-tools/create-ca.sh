@@ -3,7 +3,7 @@
 # ensure working in pki-tools dir
 cd $(dirname $0)
 
-CN=beehive
+CN=beekeeper
 
 # generate signing config
 cat <<EOF > csr.conf

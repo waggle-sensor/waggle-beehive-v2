@@ -22,6 +22,7 @@ openssl x509 -req -in "$csrfile" -CA cacert.pem -CAkey cakey.pem \
     -CAcreateserial -out "$certfile" -days 365 \
     -extensions v3_ext -extfile csr.conf
 
-tar -czf "$cn.tar.gz" "$keyfile" "$csrfile" "$certfile"
+tar -czf "$cn.tar.gz" "cacert.pem" "$keyfile" "$certfile"
+
 # clean up files which should now be in archive
 rm -f "$keyfile" "$csrfile" "$certfile"
