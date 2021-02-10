@@ -30,4 +30,5 @@ openssl req -x509 -new -nodes -key cakey.pem -subj "/CN=${CN}" -days 3650 -out c
 chmod 600 cakey.pem
 
 # genrate ssh ca
+rm -f ca
 ssh-keygen -C "${CN}" -N "" -f ca
