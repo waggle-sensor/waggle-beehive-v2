@@ -3,3 +3,5 @@
 *.tar
 *.tar.gz
 csr.conf
+ca*
+ssh-key*

@@ -24,7 +24,10 @@ keyUsage=keyEncipherment,dataEncipherment
 extendedKeyUsage=serverAuth,clientAuth
 EOF
 
-# generate ca key and cert
+# generate tls ca key and cert
 openssl genrsa -out cakey.pem 2048
 openssl req -x509 -new -nodes -key cakey.pem -subj "/CN=${CN}" -days 3650 -out cacert.pem
 chmod 600 cakey.pem
+
+# genrate ssh ca
+ssh-keygen -C "${CN}" -N "" -f ca
