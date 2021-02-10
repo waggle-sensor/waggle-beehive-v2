@@ -5,7 +5,8 @@
 Beehive server provides the data and management pipeline for Waggle nodes. This repo contains
 tools and configs to help deploy a Beehive server.
 
-The quickest way to deploy a Beehive server for dev/test is to:
-1. Setup a Kubernetes cluster. For simpler deployment, take a look at tools like [k3s](https://k3s.io) or [Kubespray](https://kubespray.io/).
-2. Run the `create-beehive.sh` script.
-
+The quickest way to deploy a Beehive server for dev/test is use the provided Vagrantbox:
+1. Install [Vagrant](https://www.vagrantup.com).
+2. Run the Vagrant box (`vagrant up`) and connect (`vagrant ssh`).
+3. Inside of the Vaggrant box, `sudo -s` and `cd /vagrant`
+4. Run the `./create-beehive.sh` script.
