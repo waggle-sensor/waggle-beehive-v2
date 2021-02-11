@@ -27,7 +27,7 @@ spec:
         app: upload-server
     spec:
       containers:
-      - image: waggle/beehive-upload-server:0.0.3
+      - image: waggle/beehive-upload-server
         name: upload-server
         ports:
         - name: ssh

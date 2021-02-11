@@ -30,3 +30,6 @@ kubectl apply -f kubernetes/upload-server.yaml
 # create credentials for but don't deploy message generator
 pki-tools/create-and-sign-tls-secret.sh message-generator message-generator-tls-secret
 # kubectl apply -f kubernetes/message-generator.yaml
+
+# NOTE if we have to, we can replace rabbitmq client certs with username / password, but it
+# would be nice to use a consistent approach for nodes and internal services, if possible.
