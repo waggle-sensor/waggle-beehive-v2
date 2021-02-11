@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb-loader
+spec:
+  selector:
+    matchLabels:
+      app: influxdb-loader
+  template:
+    metadata:
+      labels:
+        app: influxdb-loader
+    spec:
+      containers:
+      - name: influxdb-loader
+        image: waggle/beehive-influxdb-loader
+        env:
+          - name: RABBITMQ_HOST
+            value: "rabbitmq"
+          - name: RABBITMQ_PORT
+            value: "5671"
+          - name: RABBITMQ_CACERTFILE
+            value: "/etc/tls/cacert.pem"
+          - name: RABBITMQ_CERTFILE
+            value: "/etc/tls/cert.pem"
+          - name: RABBITMQ_KEYFILE
+            value: "/etc/tls/key.pem"
+
+          - name: INFLUXDB_URL
+            value: "http://influxdb:8086"
+          - name: INFLUXDB_BUCKET
+            value: "waggle"
+          - name: INFLUXDB_ORG
+            value: "waggle"
+          - name: INFLUXDB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: influxdb-loader-secret
+                key: token
+        volumeMounts:
+          - name: tls
+            mountPath: "/etc/tls"
+            readOnly: true
+      volumes:
+        - name: tls
+          secret:
+            secretName: influxdb-loader-tls-secret

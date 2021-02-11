@@ -9,6 +9,11 @@
             "name": "message-generator",
             "tags": "impersonator",
             "limits": {}
+        },
+        {
+            "name": "influxdb-loader",
+            "tags": "",
+            "limits": {}
         }
     ],
     "vhosts": [
@@ -30,6 +35,13 @@
             "configure": "^$",
             "write": "waggle.msg",
             "read": "^$"
+        },
+        {
+            "user": "influxdb-loader",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
         }
     ],
     "topic_permissions": [],
