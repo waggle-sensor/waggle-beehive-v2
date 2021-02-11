@@ -1,7 +1,6 @@
 #!/bin/bash
 
 cd $(dirname $0)
-echo "working in $PWD"
 
 echo "creating tls and ssh ca"
 pki-tools/create-ca.sh
