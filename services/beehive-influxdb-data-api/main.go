@@ -44,6 +44,8 @@ func main() {
 		Bucket: *influxdbBucket,
 	}
 
+	log.Printf("listening on %s", addr)
+
 	if err := http.ListenAndServe(*addr, svc); err != nil {
 		log.Fatal(err)
 	}

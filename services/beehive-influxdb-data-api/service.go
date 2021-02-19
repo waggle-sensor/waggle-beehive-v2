@@ -56,7 +56,9 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	results, err := queryAPI.Query(context.Background(), fluxQuery)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("query error: %s", err)
+		http.Error(w, fmt.Sprintf("internal server error: failed to query influxdb", err.Error()), http.StatusInternalServerError)
+		return
 	}
 	defer results.Close()
 
