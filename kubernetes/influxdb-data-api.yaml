@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: influxdb-data-api
+spec:
+    ports:
+      - name: influxdb-data-api
+        port: 10000
+        targetPort: 10000
+    selector:
+        app: influxdb-data-api
+    type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb-data-api
+spec:
+  selector:
+    matchLabels:
+      app: influxdb-data-api
+  template:
+    metadata:
+      labels:
+        app: influxdb-data-api
+    spec:
+      containers:
+      - name: influxdb-data-api
+        image: waggle/beehive-influxdb-data-api
+        ports:
+          - containerPort: 10000
+            name: influxdb-data-api
+        env:
+          - name: INFLUXDB_URL
+            value: "http://influxdb:8086"
+          - name: INFLUXDB_BUCKET
+            value: "waggle"
+          - name: INFLUXDB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: influxdb-loader-data-api
+                key: token
