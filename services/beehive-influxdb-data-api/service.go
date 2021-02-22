@@ -6,13 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	influxdb2query "github.com/influxdata/influxdb-client-go/v2/api/query"
 )
-
-var allowedTags = []string{"node", "plugin", "camera"}
 
 // Service keeps the service configuration for the SDR API service.
 type Service struct {
@@ -73,7 +72,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	// write all results to client
 	for results.Next() {
 		// build api record from influxdb record
-		rec, err := buildAPIRecord(results.Record())
+		rec, err := buildAPIRecordFromInflux(results.Record())
 		if err != nil {
 			log.Printf("invalid influxdb record: %s", err)
 			continue
@@ -102,7 +101,7 @@ type apirecord struct {
 	Meta      map[string]string `json:"meta"`
 }
 
-func buildAPIRecord(rec *influxdb2query.FluxRecord) (*apirecord, error) {
+func buildAPIRecordFromInflux(rec *influxdb2query.FluxRecord) (*apirecord, error) {
 	apirec := &apirecord{}
 
 	name, ok := rec.Values()["_measurement"].(string)
@@ -117,14 +116,21 @@ func buildAPIRecord(rec *influxdb2query.FluxRecord) (*apirecord, error) {
 	return apirec, nil
 }
 
+// TODO think about how we will handle or indicate generic tags influxdb
+
 func buildMetaFromRecord(rec *influxdb2query.FluxRecord) map[string]string {
 	meta := make(map[string]string)
 
-	for _, k := range allowedTags {
-		v, ok := rec.Values()[k]
-		if !ok {
+	for k, v := range rec.Values() {
+		// skip internal fields
+		if strings.HasPrefix(k, "_") {
 			continue
 		}
+		// skip special influxdb meta fields
+		if k == "table" || k == "result" {
+			continue
+		}
+		// skip non-string field types
 		s, ok := v.(string)
 		if !ok {
 			continue

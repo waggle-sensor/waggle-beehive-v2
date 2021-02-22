@@ -10,21 +10,6 @@ import (
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
-func getenv(key string, fallback string) string {
-	if s, ok := os.LookupEnv(key); ok {
-		return s
-	}
-	return fallback
-}
-
-func mustParseDuration(s string) time.Duration {
-	d, err := time.ParseDuration(s)
-	if err != nil {
-		panic(err)
-	}
-	return d
-}
-
 func main() {
 	addr := flag.String("addr", ":10000", "service addr")
 	influxdbURL := flag.String("influxdb.url", getenv("INFLUXDB_URL", "http://localhost:8086"), "influxdb url")
@@ -50,4 +35,19 @@ func main() {
 	if err := http.ListenAndServe(*addr, svc); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getenv(key string, fallback string) string {
+	if s, ok := os.LookupEnv(key); ok {
+		return s
+	}
+	return fallback
+}
+
+func mustParseDuration(s string) time.Duration {
+	d, err := time.ParseDuration(s)
+	if err != nil {
+		panic(err)
+	}
+	return d
 }
