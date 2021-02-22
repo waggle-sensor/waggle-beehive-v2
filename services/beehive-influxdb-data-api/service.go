@@ -59,6 +59,8 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	defer results.Close()
 
 	// write all results to client
+	w.WriteHeader(http.StatusOK)
+
 	for results.Next() {
 		if err := writeRecord(w, results.Record()); err != nil {
 			break
