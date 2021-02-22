@@ -14,14 +14,6 @@ type Service struct {
 	Backend Backend
 }
 
-// apirecord is used to hold a response record in the SDR API format.
-type apirecord struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Name      string            `json:"name"`
-	Value     interface{}       `json:"value"`
-	Meta      map[string]string `json:"meta"`
-}
-
 // ServeHTTP dispatches an HTTP request to the right handler.
 func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO add simple index page

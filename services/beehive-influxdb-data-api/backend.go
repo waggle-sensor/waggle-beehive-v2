@@ -18,6 +18,13 @@ type Results interface {
 	Record() *Record
 }
 
+// Query holds an SDR query body.
+type Query struct {
+	Start  string            `json:"start,omitempty"`
+	End    string            `json:"end,omitempty"`
+	Filter map[string]string `json:"filter"`
+}
+
 // Record holds an SDR API record.
 type Record struct {
 	Timestamp time.Time         `json:"timestamp"`
