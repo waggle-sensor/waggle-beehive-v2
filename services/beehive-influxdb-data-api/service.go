@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -17,6 +18,14 @@ import (
 type Service struct {
 	Client influxdb2.Client
 	Bucket string
+}
+
+// apirecord is used to hold a response record in the SDR API format.
+type apirecord struct {
+	Timestamp time.Time         `json:"timestamp"`
+	Name      string            `json:"name"`
+	Value     interface{}       `json:"value"`
+	Meta      map[string]string `json:"meta"`
 }
 
 // ServeHTTP dispatches an HTTP request to the right handler.
@@ -38,22 +47,17 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// parse query body from client
-	var query Query
-
-	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
-		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
-		return
-	}
-
-	// build flux query for influxdb
-	fluxQuery, err := buildFluxQuery(svc.Bucket, &query)
+	query, err := parseQuery(r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("query: %s", fluxQuery)
+	fluxQuery, err := buildFluxQuery(svc.Bucket, query)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
 
 	queryAPI := svc.Client.QueryAPI(svc.Bucket)
 
@@ -74,18 +78,14 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	// write all results to client
 	for results.Next() {
-		// build api record from influxdb record
 		rec, err := buildAPIRecordFromInflux(results.Record())
 		if err != nil {
 			log.Printf("invalid influxdb record: %s", err)
 			continue
 		}
-
-		// write api record to client
-		if err := json.NewEncoder(w).Encode(rec); err != nil {
+		if err := writeRecord(w, rec); err != nil {
 			break
 		}
-
 		queryCount++
 	}
 
@@ -97,12 +97,16 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	log.Printf("served %d records in %s", queryCount, queryDuration)
 }
 
-// apirecord is used to hold a response record in the SDR API format.
-type apirecord struct {
-	Timestamp time.Time         `json:"timestamp"`
-	Name      string            `json:"name"`
-	Value     interface{}       `json:"value"`
-	Meta      map[string]string `json:"meta"`
+func parseQuery(r io.Reader) (*Query, error) {
+	var query Query
+	if err := json.NewDecoder(r).Decode(&query); err != nil {
+		return nil, err
+	}
+	return &query, nil
+}
+
+func writeRecord(w io.Writer, rec *apirecord) error {
+	return json.NewEncoder(w).Encode(rec)
 }
 
 // buildAPIRecordFromInflux converts an InfluxDB record to an SDR API record.
