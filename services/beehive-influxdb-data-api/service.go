@@ -9,6 +9,7 @@ import (
 	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
+	influxdb2query "github.com/influxdata/influxdb-client-go/v2/api/query"
 )
 
 var allowedTags = []string{"node", "plugin", "camera"}
@@ -20,6 +21,7 @@ type Service struct {
 }
 
 func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// TODO add simple index page
 	switch r.URL.Path {
 	case "/api/v1/query":
 		svc.serveQuery(w, r)
@@ -34,6 +36,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// parse query body from client
 	var query Query
 
 	if err := json.NewDecoder(r.Body).Decode(&query); err != nil {
@@ -41,6 +44,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// build flux query for influxdb
 	fluxQuery, err := buildFluxQuery(svc.Bucket, &query)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
@@ -54,6 +58,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	queryStart := time.Now()
 	queryCount := 0
 
+	// run query against influxdb and get results
 	results, err := queryAPI.Query(context.Background(), fluxQuery)
 	if err != nil {
 		log.Printf("query error: %s", err)
@@ -62,44 +67,19 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	}
 	defer results.Close()
 
-	// go ahead and write header
+	// write ok header before writing results
 	w.WriteHeader(http.StatusOK)
 
+	// write all results to client
 	for results.Next() {
-		rec := &struct {
-			Timestamp time.Time         `json:"timestamp"`
-			Name      string            `json:"name"`
-			Value     interface{}       `json:"value"`
-			Meta      map[string]string `json:"meta"`
-		}{
-			Meta: make(map[string]string),
-		}
-
-		values := results.Record().Values()
-
-		if s, ok := values["_measurement"].(string); ok {
-			rec.Name = s
-		} else {
-			log.Printf("invalid measurement name")
+		// build api record from influxdb record
+		rec, err := buildAPIRecord(results.Record())
+		if err != nil {
+			log.Printf("invalid influxdb record: %s", err)
 			continue
 		}
 
-		rec.Timestamp = results.Record().Time()
-		rec.Value = values["_value"]
-
-		// populate meta fields
-		for _, k := range allowedTags {
-			v, ok := values[k]
-			if !ok {
-				continue
-			}
-			s, ok := v.(string)
-			if !ok {
-				continue
-			}
-			rec.Meta[k] = s
-		}
-
+		// write api record to client
 		if err := json.NewEncoder(w).Encode(rec); err != nil {
 			break
 		}
@@ -113,4 +93,44 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	queryDuration := time.Since(queryStart)
 	log.Printf("served %d records in %s", queryCount, queryDuration)
+}
+
+type apirecord struct {
+	Timestamp time.Time         `json:"timestamp"`
+	Name      string            `json:"name"`
+	Value     interface{}       `json:"value"`
+	Meta      map[string]string `json:"meta"`
+}
+
+func buildAPIRecord(rec *influxdb2query.FluxRecord) (*apirecord, error) {
+	apirec := &apirecord{}
+
+	name, ok := rec.Values()["_measurement"].(string)
+	if !ok {
+		return nil, fmt.Errorf("invalid measurement name type")
+	}
+
+	apirec.Name = name
+	apirec.Timestamp = rec.Time()
+	apirec.Value = rec.Values()["_value"]
+	apirec.Meta = buildMetaFromRecord(rec)
+	return apirec, nil
+}
+
+func buildMetaFromRecord(rec *influxdb2query.FluxRecord) map[string]string {
+	meta := make(map[string]string)
+
+	for _, k := range allowedTags {
+		v, ok := rec.Values()[k]
+		if !ok {
+			continue
+		}
+		s, ok := v.(string)
+		if !ok {
+			continue
+		}
+		meta[k] = s
+	}
+
+	return meta
 }
