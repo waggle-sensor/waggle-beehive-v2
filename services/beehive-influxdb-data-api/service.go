@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -59,15 +58,15 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	queryAPI := svc.Client.QueryAPI(svc.Bucket)
-
 	queryStart := time.Now()
 	queryCount := 0
 
+	queryAPI := svc.Client.QueryAPI(svc.Bucket)
+
 	// run query against influxdb and get results
-	results, err := queryAPI.Query(context.Background(), fluxQuery)
+	results, err := queryAPI.Query(r.Context(), fluxQuery)
 	if err != nil {
-		log.Printf("query error: %s", err)
+		log.Printf("influxdb query error: %s", err)
 		http.Error(w, fmt.Sprintf("internal server error: failed to query influxdb"), http.StatusInternalServerError)
 		return
 	}
@@ -109,7 +108,6 @@ func writeAPIRecord(w io.Writer, rec *apirecord) error {
 	return json.NewEncoder(w).Encode(rec)
 }
 
-// buildAPIRecordFromInflux converts an InfluxDB record to an SDR API record.
 func convertToAPIRecord(rec *influxdb2query.FluxRecord) (*apirecord, error) {
 	apirec := &apirecord{}
 
@@ -129,15 +127,16 @@ func buildMetaFromRecord(rec *influxdb2query.FluxRecord) map[string]string {
 	meta := make(map[string]string)
 
 	for k, v := range rec.Values() {
-		// skip internal fields
+		// skip influxdb internal fields (convention is to start with _)
 		if strings.HasPrefix(k, "_") {
 			continue
 		}
-		// skip special influxdb meta fields
+		// skip influxdb "leaky" fields (table and result don't use above
+		// convention but still leak internal details about query)
 		if k == "table" || k == "result" {
 			continue
 		}
-		// skip non-string field types
+		// only include string types in meta
 		s, ok := v.(string)
 		if !ok {
 			continue
