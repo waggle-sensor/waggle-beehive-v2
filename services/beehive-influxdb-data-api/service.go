@@ -47,7 +47,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	query, err := parseQuery(r.Body)
+	query, err := parseAPIQuery(r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
 		return
@@ -78,12 +78,12 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	// write all results to client
 	for results.Next() {
-		rec, err := buildAPIRecordFromInflux(results.Record())
+		rec, err := convertToAPIRecord(results.Record())
 		if err != nil {
 			log.Printf("invalid influxdb record: %s", err)
 			continue
 		}
-		if err := writeRecord(w, rec); err != nil {
+		if err := writeAPIRecord(w, rec); err != nil {
 			break
 		}
 		queryCount++
@@ -97,7 +97,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	log.Printf("served %d records in %s", queryCount, queryDuration)
 }
 
-func parseQuery(r io.Reader) (*Query, error) {
+func parseAPIQuery(r io.Reader) (*Query, error) {
 	var query Query
 	if err := json.NewDecoder(r).Decode(&query); err != nil {
 		return nil, err
@@ -105,12 +105,12 @@ func parseQuery(r io.Reader) (*Query, error) {
 	return &query, nil
 }
 
-func writeRecord(w io.Writer, rec *apirecord) error {
+func writeAPIRecord(w io.Writer, rec *apirecord) error {
 	return json.NewEncoder(w).Encode(rec)
 }
 
 // buildAPIRecordFromInflux converts an InfluxDB record to an SDR API record.
-func buildAPIRecordFromInflux(rec *influxdb2query.FluxRecord) (*apirecord, error) {
+func convertToAPIRecord(rec *influxdb2query.FluxRecord) (*apirecord, error) {
 	apirec := &apirecord{}
 
 	name, ok := rec.Values()["_measurement"].(string)
