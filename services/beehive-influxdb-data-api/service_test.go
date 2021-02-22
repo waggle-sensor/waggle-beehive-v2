@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -72,26 +71,4 @@ func TestQueryResponse(t *testing.T) {
 			t.Fatalf("records don't match\nexpect: %s\noutput: %s", b1, b2)
 		}
 	}
-}
-
-func recordsEqual(a, b *Record) bool {
-	return a.Name == b.Name &&
-		a.Timestamp == b.Timestamp &&
-		subset(a.Meta, b.Meta) &&
-		subset(b.Meta, a.Meta) &&
-		valueEqual(a.Value, b.Value)
-}
-
-func valueEqual(a, b interface{}) bool {
-	return fmt.Sprintf("%s", a) == fmt.Sprintf("%s", b)
-}
-
-func subset(a, b map[string]string) bool {
-	for k, v1 := range a {
-		v2, ok := b[k]
-		if !ok || v1 != v2 {
-			return false
-		}
-	}
-	return true
 }
