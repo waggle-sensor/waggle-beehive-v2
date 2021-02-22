@@ -13,6 +13,7 @@ type Query struct {
 	Filter map[string]string `json:"filter"`
 }
 
+// buildFluxQuery builds a Flux query string for InfluxDB from a bucket name and Query
 func buildFluxQuery(bucket string, query *Query) (string, error) {
 	// start query out with data bucket
 	parts := []string{
@@ -60,6 +61,12 @@ func buildRangeSubquery(query *Query) (string, error) {
 	return "", nil
 }
 
+// Waggle and InfluxDB use slightly different field names in at least one case, so
+// we keep a map to document and translate between them when needed.
+var fieldRenameMap = map[string]string{
+	"name": "_measurement",
+}
+
 func buildFilterSubquery(query *Query) (string, error) {
 	var parts []string
 
@@ -71,7 +78,10 @@ func buildFilterSubquery(query *Query) (string, error) {
 			return "", fmt.Errorf("invalid filter field pattern %q", pattern)
 		}
 
-		field = renameFieldIfNeeded(field)
+		// rename field, if needed
+		if s, ok := fieldRenameMap[field]; ok {
+			field = s
+		}
 
 		// handle wildcard or exact match. (this may not actually be an optimization)
 		if strings.Contains(pattern, "*") {
@@ -86,13 +96,6 @@ func buildFilterSubquery(query *Query) (string, error) {
 	}
 
 	return "", nil
-}
-
-func renameFieldIfNeeded(s string) string {
-	if s == "name" {
-		return "_measurement"
-	}
-	return s
 }
 
 var validQueryStringRE = regexp.MustCompile("^[A-Za-z0-9+-_.*: ]*$")

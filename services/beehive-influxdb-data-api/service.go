@@ -19,6 +19,7 @@ type Service struct {
 	Bucket string
 }
 
+// ServeHTTP dispatches an HTTP request to the right handler.
 func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO add simple index page
 	switch r.URL.Path {
@@ -29,6 +30,8 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// serveQuery parses a query request, translates and forwards it to InfluxDB
+// and writes the results back to the client.
 func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "query api expects http POST", http.StatusMethodNotAllowed)
@@ -94,6 +97,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 	log.Printf("served %d records in %s", queryCount, queryDuration)
 }
 
+// apirecord is used to hold a response record in the SDR API format.
 type apirecord struct {
 	Timestamp time.Time         `json:"timestamp"`
 	Name      string            `json:"name"`
@@ -101,6 +105,7 @@ type apirecord struct {
 	Meta      map[string]string `json:"meta"`
 }
 
+// buildAPIRecordFromInflux converts an InfluxDB record to an SDR API record.
 func buildAPIRecordFromInflux(rec *influxdb2query.FluxRecord) (*apirecord, error) {
 	apirec := &apirecord{}
 
@@ -115,8 +120,6 @@ func buildAPIRecordFromInflux(rec *influxdb2query.FluxRecord) (*apirecord, error
 	apirec.Meta = buildMetaFromRecord(rec)
 	return apirec, nil
 }
-
-// TODO think about how we will handle or indicate generic tags influxdb
 
 func buildMetaFromRecord(rec *influxdb2query.FluxRecord) map[string]string {
 	meta := make(map[string]string)

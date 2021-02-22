@@ -37,6 +37,7 @@ func main() {
 	}
 }
 
+// getenv returns an environment variable's value or provides a default when if it's not defined.
 func getenv(key string, fallback string) string {
 	if s, ok := os.LookupEnv(key); ok {
 		return s
@@ -44,6 +45,7 @@ func getenv(key string, fallback string) string {
 	return fallback
 }
 
+// mustParseDuration requires a duration to be parsed
 func mustParseDuration(s string) time.Duration {
 	d, err := time.ParseDuration(s)
 	if err != nil {
