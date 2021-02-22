@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-// DummyBackend provides a list of test records.
+// DummyBackend implements a test backend which replays a list of test records.
 type DummyBackend struct {
 	Records []*Record
 }
