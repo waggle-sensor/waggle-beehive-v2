@@ -58,3 +58,27 @@ func TestBuildFluxQuery(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildFluxBadQuery(t *testing.T) {
+	testcases := []*Query{
+		{
+			Start: "-4h",
+			Filter: map[string]string{
+				"name": "); drop bucket",
+			},
+		},
+		{
+			Start: "); danger",
+		},
+		{
+			End: "); danger",
+		},
+	}
+
+	for _, query := range testcases {
+		_, err := buildFluxQuery("mybucket", query)
+		if err == nil {
+			t.Fatalf("expected error for %#v", query)
+		}
+	}
+}

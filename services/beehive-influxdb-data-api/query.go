@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -13,44 +14,89 @@ type Query struct {
 }
 
 func buildFluxQuery(bucket string, query *Query) (string, error) {
-	var fluxParts []string
+	// start query out with data bucket
+	parts := []string{
+		fmt.Sprintf(`from(bucket:"%s")`, bucket),
+	}
 
-	fluxParts = append(fluxParts, fmt.Sprintf(`from(bucket:"%s")`, bucket))
+	// add range subquery, if not empty
+	rangeSubquery, err := buildRangeSubquery(query)
+	if err != nil {
+		return "", err
+	}
+	if rangeSubquery != "" {
+		parts = append(parts, rangeSubquery)
+	}
 
-	var rangeParts []string
+	// add filter subquery, if not empty
+	filterSubquery, err := buildFilterSubquery(query)
+	if err != nil {
+		return "", err
+	}
+	if filterSubquery != "" {
+		parts = append(parts, filterSubquery)
+	}
 
+	return strings.Join(parts, " |> "), nil
+}
+
+func buildRangeSubquery(query *Query) (string, error) {
+	var parts []string
+	if !isValidFilterString(query.Start) {
+		return "", fmt.Errorf("invalid start timestamp %q", query.Start)
+	}
+	if !isValidFilterString(query.End) {
+		return "", fmt.Errorf("invalid end timestamp %q", query.End)
+	}
 	if query.Start != "" {
-		rangeParts = append(rangeParts, "start:"+query.Start)
+		parts = append(parts, "start:"+query.Start)
 	}
 	if query.End != "" {
-		rangeParts = append(rangeParts, "end:"+query.End)
+		parts = append(parts, "end:"+query.End)
 	}
-
-	if len(rangeParts) > 0 {
-		part := fmt.Sprintf(`range(%s)`, strings.Join(rangeParts, ","))
-		fluxParts = append(fluxParts, part)
+	if len(parts) > 0 {
+		return fmt.Sprintf(`range(%s)`, strings.Join(parts, ",")), nil
 	}
+	return "", nil
+}
 
-	var filterParts []string
+func buildFilterSubquery(query *Query) (string, error) {
+	var parts []string
 
-	// TODO sanitize filter parts
 	for field, pattern := range query.Filter {
-		// handle spcial rename cases
-		if field == "name" {
-			field = "_measurement"
+		if !isValidFilterString(field) {
+			return "", fmt.Errorf("invalid filter field name %q", field)
 		}
+		if !isValidFilterString(pattern) {
+			return "", fmt.Errorf("invalid filter field pattern %q", pattern)
+		}
+
+		field = renameFieldIfNeeded(field)
+
 		// handle wildcard or exact match. (this may not actually be an optimization)
 		if strings.Contains(pattern, "*") {
-			filterParts = append(filterParts, fmt.Sprintf("r.%s =~ /^%s$/", field, pattern))
+			parts = append(parts, fmt.Sprintf("r.%s =~ /^%s$/", field, pattern))
 		} else {
-			filterParts = append(filterParts, fmt.Sprintf("r.%s == \"%s\"", field, pattern))
+			parts = append(parts, fmt.Sprintf("r.%s == \"%s\"", field, pattern))
 		}
 	}
 
-	if len(filterParts) > 0 {
-		part := fmt.Sprintf(`filter(fn: (r) => %s)`, strings.Join(filterParts, " and "))
-		fluxParts = append(fluxParts, part)
+	if len(parts) > 0 {
+		return fmt.Sprintf(`filter(fn: (r) => %s)`, strings.Join(parts, " and ")), nil
 	}
 
-	return strings.Join(fluxParts, " |> "), nil
+	return "", nil
+}
+
+func renameFieldIfNeeded(s string) string {
+	if s == "name" {
+		return "_measurement"
+	}
+	return s
+}
+
+var validQueryStringRE = regexp.MustCompile("^[A-Za-z0-9+-_.*: ]*$")
+
+func isValidFilterString(s string) bool {
+	return len(s) < 128 && validQueryStringRE.MatchString(s)
 }

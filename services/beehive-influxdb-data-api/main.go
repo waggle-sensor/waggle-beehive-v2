@@ -10,11 +10,11 @@ import (
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 )
 
-func getenv(key string, def string) string {
+func getenv(key string, fallback string) string {
 	if s, ok := os.LookupEnv(key); ok {
 		return s
 	}
-	return def
+	return fallback
 }
 
 func mustParseDuration(s string) time.Duration {
@@ -33,6 +33,7 @@ func main() {
 	influxdbTimeout := flag.Duration("influxdb.timeout", mustParseDuration(getenv("INFLUXDB_TIMEOUT", "15m")), "influxdb client timeout")
 	flag.Parse()
 
+	log.Printf("connecting to influxdb at %s", *influxdbURL)
 	client := influxdb2.NewClient(*influxdbURL, *influxdbToken)
 	defer client.Close()
 
@@ -44,7 +45,7 @@ func main() {
 		Bucket: *influxdbBucket,
 	}
 
-	log.Printf("listening on %s", addr)
+	log.Printf("service listening on %s", *addr)
 
 	if err := http.ListenAndServe(*addr, svc); err != nil {
 		log.Fatal(err)
