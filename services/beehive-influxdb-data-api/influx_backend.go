@@ -10,7 +10,7 @@ import (
 	influxdb2query "github.com/influxdata/influxdb-client-go/v2/api/query"
 )
 
-// InfluxBackend provides backend to InfluxDB.
+// InfluxBackend implements a backend to InfluxDB.
 type InfluxBackend struct {
 	Client influxdb2.Client
 	Bucket string
