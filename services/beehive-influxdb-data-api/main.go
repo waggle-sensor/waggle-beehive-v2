@@ -26,8 +26,10 @@ func main() {
 	client.Options().HTTPClient().Timeout = *influxdbTimeout
 
 	svc := &Service{
-		Client: client,
-		Bucket: *influxdbBucket,
+		Backend: &InfluxBackend{
+			Client: client,
+			Bucket: *influxdbBucket,
+		},
 	}
 
 	log.Printf("service listening on %s", *addr)
