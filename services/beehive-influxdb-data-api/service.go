@@ -2,12 +2,22 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"log"
 	"net/http"
 	"time"
 )
+
+type serviceError struct {
+	err     error
+	Message string
+	Code    int
+}
+
+func (e *serviceError) Error() string {
+	return e.err.Error()
+}
 
 // Service keeps the service configuration for the SDR API service.
 type Service struct {
@@ -19,7 +29,10 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// TODO add simple index page
 	switch r.URL.Path {
 	case "/api/v1/query":
-		svc.serveQuery(w, r)
+		if err := svc.serveQuery(w, r); err != nil {
+			log.Printf("error: %s", err.Error())
+			http.Error(w, err.Message, err.Code)
+		}
 	default:
 		http.NotFound(w, r)
 	}
@@ -27,16 +40,14 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // serveQuery parses a query request, translates and forwards it to InfluxDB
 // and writes the results back to the client.
-func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
+func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) *serviceError {
 	if r.Method != http.MethodPost {
-		http.Error(w, "query api expects http POST", http.StatusMethodNotAllowed)
-		return
+		return &serviceError{errors.New("invalid method"), "query api expects POST request", http.StatusMethodNotAllowed}
 	}
 
 	query, err := parseQuery(r.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("query error: %s", err.Error()), http.StatusBadRequest)
-		return
+		return &serviceError{err, "failed to parse query body", http.StatusBadRequest}
 	}
 
 	queryStart := time.Now()
@@ -44,9 +55,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	results, err := svc.Backend.Query(r.Context(), query)
 	if err != nil {
-		log.Printf("influxdb query error: %s", err)
-		http.Error(w, fmt.Sprintf("internal server error: failed to query influxdb"), http.StatusInternalServerError)
-		return
+		return &serviceError{err, "failed to query backend", http.StatusInternalServerError}
 	}
 	defer results.Close()
 
@@ -66,6 +75,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) {
 
 	queryDuration := time.Since(queryStart)
 	log.Printf("served %d records in %s", queryCount, queryDuration)
+	return nil
 }
 
 func parseQuery(r io.Reader) (*Query, error) {
