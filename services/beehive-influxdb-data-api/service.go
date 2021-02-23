@@ -10,13 +10,9 @@ import (
 )
 
 type serviceError struct {
-	err     error
+	Error   error
 	Message string
 	Code    int
-}
-
-func (e *serviceError) Error() string {
-	return e.err.Error()
 }
 
 // Service keeps the service configuration for the SDR API service.
@@ -30,8 +26,10 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api/v1/query":
 		if err := svc.serveQuery(w, r); err != nil {
-			log.Printf("error: %s", err.Error())
+			log.Printf("error %q %v", r.URL.Path, err.Error)
 			http.Error(w, err.Message, err.Code)
+		} else {
+			log.Printf("served %q", r.URL.Path)
 		}
 	default:
 		http.NotFound(w, r)
