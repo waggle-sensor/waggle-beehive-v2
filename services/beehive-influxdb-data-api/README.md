@@ -8,7 +8,7 @@ We are currently evaluating InfluxDB as our backend alongside rolling our own qu
 
 ## Querying Data
 
-The `/api/v1/query` provides a simple query system. Here's an example:
+The `/api/v1/query` endpoint provides a simple measurement query system. Here's an example:
 
 ```txt
 curl -X POST http://service-ip:10000/api/v1/query -d '
