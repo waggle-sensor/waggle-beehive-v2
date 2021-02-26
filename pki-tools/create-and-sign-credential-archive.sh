@@ -20,7 +20,7 @@ rm -f "$keyfile" "$csrfile" "$certfile" "$ssh_keyfile" "$ssh_keyfile.pub" "$ssh_
 
 # generate tls credentials
 openssl genrsa -out "$keyfile" 2048
-openssl req -new -key "$keyfile" -out "$csrfile" -config csr.conf -subj="/CN=$cn"
+openssl req -new -key "$keyfile" -out "$csrfile" -config csr.conf -subj "/CN=$cn"
 openssl x509 -req -in "$csrfile" -CA cacert.pem -CAkey cakey.pem \
     -CAcreateserial -out "$certfile" -days 365 \
     -extensions v3_ext -extfile csr.conf
