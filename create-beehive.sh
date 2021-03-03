@@ -1,24 +1,27 @@
 #!/bin/bash
 
+# WARNING the openssl on macos isn't exactly compatible with our flags / configs.
+# it will probably break or lead to weird problems.
+
 cd $(dirname $0)
 
 echo "creating tls and ssh ca"
 pki-tools/create-ca.sh
 
 echo "deploying rabbitmq"
-pki-tools/create-and-sign-tls-secret.sh rabbitmq beehive-rabbitmq-tls-secret
+pki-tools/create-and-sign-tls-secret.sh beehive-rabbitmq beehive-rabbitmq-tls-secret
 kubectl apply -f kubernetes/beehive-rabbitmq.yaml
 
 echo "deploying message logger"
-pki-tools/create-and-sign-tls-secret.sh message-logger message-logger-tls-secret
-kubectl apply -f kubernetes/message-logger.yaml
+pki-tools/create-and-sign-tls-secret.sh beehive-message-logger beehive-message-logger-tls-secret
+kubectl apply -f kubernetes/beehive-message-logger.yaml
 
 echo "deploying upload server"
-pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server upload-server-ssh-host-key-secret
-kubectl apply -f kubernetes/upload-server.yaml
+pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server beehive-upload-server-ssh-secret
+kubectl apply -f kubernetes/beehive-upload-server.yaml
 
 echo "deploying influxdb"
-kubectl apply -f kubernetes/influxdb.yaml
+kubectl apply -f kubernetes/beehive-influxdb.yaml
 
 setup_influxdb() {
     kubectl exec svc/influxdb -- influx setup \

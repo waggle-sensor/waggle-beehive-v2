@@ -32,6 +32,6 @@ payload = json.dumps(definitions).encode()
 
 # TODO change to use rabbitmq api instead of kubectl exec
 subprocess.run([
-    "kubectl", "exec", "-i", "svc/rabbitmq", "--",
+    "kubectl", "exec", "-i", "svc/beehive-rabbitmq", "--",
     "rabbitmqctl", "--timeout", "300", "import_definitions",
 ], input=payload)
