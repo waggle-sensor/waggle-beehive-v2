@@ -1,20 +1,124 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq
+  name: beehive-rabbitmq
 spec:
   type: NodePort
   selector:
-    app: rabbitmq
+    app: beehive-rabbitmq
   ports:
-    - name: amqps
+    - name: rabbitmq-amqps
       protocol: TCP
       port: 5671
       nodePort: 30000
-    - name: rabbitmq-management-https
+    - name: rabbitmq-management
       protocol: TCP
       port: 15671
       nodePort: 30001
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beehive-rabbitmq-config
+data:
+  enabled_plugins: |
+    [rabbitmq_prometheus,rabbitmq_management,rabbitmq_management_agent,rabbitmq_auth_mechanism_ssl].
+  rabbitmq.conf: |
+    # disable plain tcp for message traffic
+    listeners.tcp = none
+
+    # use ssl for all message traffic
+    listeners.ssl.default = 5671
+    ssl_options.cacertfile           = /etc/tls/cacert.pem
+    ssl_options.certfile             = /etc/tls/cert.pem
+    ssl_options.keyfile              = /etc/tls/key.pem
+    ssl_options.verify               = verify_peer
+    ssl_options.fail_if_no_peer_cert = true
+    ssl_cert_login_from              = common_name
+
+    # use ssl for management console and api
+    management.ssl.port       = 15671
+    management.ssl.cacertfile = /etc/tls/cacert.pem
+    management.ssl.certfile   = /etc/tls/cert.pem
+    management.ssl.keyfile    = /etc/tls/key.pem
+
+    auth_mechanisms.1 = PLAIN
+    auth_mechanisms.2 = AMQPLAIN
+    auth_mechanisms.3 = EXTERNAL
+
+    default_vhost = /
+    default_user = admin
+    default_pass = admin
+
+    default_permissions.configure = .*
+    default_permissions.read = .*
+    default_permissions.write = .*
+
+    load_definitions = /etc/rabbitmq/definitions.json
+  definitions.json: |
+    {
+        "users": [
+            {
+                "name": "message-logger",
+                "tags": "",
+                "limits": {}
+            },
+            {
+                "name": "message-generator",
+                "tags": "impersonator",
+                "limits": {}
+            },
+            {
+                "name": "influxdb-loader",
+                "tags": "",
+                "limits": {}
+            }
+        ],
+        "vhosts": [
+            {
+                "name": "/"
+            }
+        ],
+        "permissions": [
+            {
+                "user": "message-logger",
+                "vhost": "/",
+                "configure": ".*",
+                "write": ".*",
+                "read": ".*"
+            },
+            {
+                "user": "message-generator",
+                "vhost": "/",
+                "configure": "^$",
+                "write": "waggle.msg",
+                "read": "^$"
+            },
+            {
+                "user": "influxdb-loader",
+                "vhost": "/",
+                "configure": ".*",
+                "write": ".*",
+                "read": ".*"
+            }
+        ],
+        "topic_permissions": [],
+        "parameters": [],
+        "policies": [],
+        "queues": [],
+        "exchanges": [
+            {
+                "name": "waggle.msg",
+                "vhost": "/",
+                "type": "topic",
+                "durable": true,
+                "auto_delete": false,
+                "internal": false,
+                "arguments": {}
+            }
+        ],
+        "bindings": []
+    }
 ---
 apiVersion: apps/v1
 kind: StatefulSet

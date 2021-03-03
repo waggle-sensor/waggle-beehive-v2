@@ -59,17 +59,17 @@ data:
     {
         "users": [
             {
-                "name": "message-logger",
+                "name": "beehive-message-logger",
                 "tags": "",
                 "limits": {}
             },
             {
-                "name": "message-generator",
+                "name": "beehive-message-generator",
                 "tags": "impersonator",
                 "limits": {}
             },
             {
-                "name": "influxdb-loader",
+                "name": "beehive-influxdb-loader",
                 "tags": "",
                 "limits": {}
             }
@@ -81,21 +81,21 @@ data:
         ],
         "permissions": [
             {
-                "user": "message-logger",
+                "user": "beehive-message-logger",
                 "vhost": "/",
                 "configure": ".*",
                 "write": ".*",
                 "read": ".*"
             },
             {
-                "user": "message-generator",
+                "user": "beehive-message-generator",
                 "vhost": "/",
                 "configure": "^$",
                 "write": "waggle.msg",
                 "read": "^$"
             },
             {
-                "user": "influxdb-loader",
+                "user": "beehive-influxdb-loader",
                 "vhost": "/",
                 "configure": ".*",
                 "write": ".*",
