@@ -24,7 +24,7 @@ echo "deploying influxdb"
 kubectl apply -f kubernetes/beehive-influxdb.yaml
 
 setup_influxdb() {
-    kubectl exec svc/influxdb -- influx setup \
+    kubectl exec svc/beehive-influxdb -- influx setup \
         --org waggle \
         --bucket waggle \
         --username waggle \
@@ -47,7 +47,7 @@ done
 
 generate_influxdb_token() {
     # token is emitted in second column
-    kubectl exec svc/influxdb -- influx auth create \
+    kubectl exec svc/beehive-influxdb -- influx auth create \
         --user waggle \
         --org waggle \
         --hide-headers $* | awk '{print $2}'
@@ -55,17 +55,17 @@ generate_influxdb_token() {
 
 echo "generating token for data loader"
 token=$(generate_influxdb_token --write-buckets)
-kubectl create secret generic influxdb-loader-secret \
+kubectl create secret generic beehive-influxdb-loader-secret \
     --from-literal=token="$token"
-pki-tools/create-and-sign-tls-secret.sh influxdb-loader influxdb-loader-tls-secret
-kubectl apply -f kubernetes/influxdb-loader.yaml
+pki-tools/create-and-sign-tls-secret.sh beehive-influxdb-loader beehive-influxdb-loader-tls-secret
+kubectl apply -f kubernetes/beehive-influxdb-loader.yaml
 
 echo "generating token for data api"
 token=$(generate_influxdb_token --read-buckets)
-kubectl create secret generic influxdb-data-api-secret \
+kubectl create secret generic beehive-influxdb-data-api-secret \
     --from-literal=token="$token"
-kubectl apply -f kubernetes/influxdb-data-api.yaml
+kubectl apply -f kubernetes/beehive-influxdb-data-api.yaml
 
 echo "creating credentials for but will not deploy message generator"
-pki-tools/create-and-sign-tls-secret.sh message-generator message-generator-tls-secret
-# kubectl apply -f kubernetes/message-generator.yaml
+pki-tools/create-and-sign-tls-secret.sh beehive-message-generator beehive-message-generator-tls-secret
+# kubectl apply -f kubernetes/beehive-message-generator.yaml
