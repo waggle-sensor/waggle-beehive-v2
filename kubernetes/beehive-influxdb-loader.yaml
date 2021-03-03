@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: influxdb-loader
+  name: beehive-influxdb-loader
 spec:
   selector:
     matchLabels:
-      app: influxdb-loader
+      app: beehive-influxdb-loader
   template:
     metadata:
       labels:
-        app: influxdb-loader
+        app: beehive-influxdb-loader
     spec:
       containers:
-      - name: influxdb-loader
+      - name: beehive-influxdb-loader
         image: waggle/beehive-influxdb-loader
         env:
           - name: RABBITMQ_HOST
