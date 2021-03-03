@@ -22,7 +22,7 @@ func TestBuildFluxQuery(t *testing.T) {
 				Start: "-4h",
 				End:   "-2h",
 			},
-			Expect: `from(bucket:"mybucket") |> range(start:-4h,end:-2h)`,
+			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h)`,
 		},
 		// this case checks for exact match filter
 		{
@@ -32,7 +32,7 @@ func TestBuildFluxQuery(t *testing.T) {
 				Filter: map[string]string{
 					"node": "0000000000000001",
 				}},
-			Expect: `from(bucket:"mybucket") |> range(start:-4h,end:-2h) |> filter(fn: (r) => r.node == "0000000000000001")`,
+			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h) |> filter(fn: (r) => r.node == "0000000000000001")`,
 		},
 		// this case checks for rename on name field and usage of regexp
 		{
@@ -42,7 +42,7 @@ func TestBuildFluxQuery(t *testing.T) {
 				Filter: map[string]string{
 					"name": "env.temp.*",
 				}},
-			Expect: `from(bucket:"mybucket") |> range(start:-4h,end:-2h) |> filter(fn: (r) => r._measurement =~ /^env.temp.*$/)`,
+			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h) |> filter(fn: (r) => r._measurement =~ /^env.temp.*$/)`,
 		},
 	}
 

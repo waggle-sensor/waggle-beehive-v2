@@ -1,32 +1,32 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: beehive-influxdb-data-api
+    name: beehive-data-api
 spec:
     ports:
       - name: http
         port: 10000
         targetPort: 10000
     selector:
-        app: beehive-influxdb-data-api
+        app: beehive-data-api
     type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: beehive-influxdb-data-api
+  name: beehive-data-api
 spec:
   selector:
     matchLabels:
-      app: beehive-influxdb-data-api
+      app: beehive-data-api
   template:
     metadata:
       labels:
-        app: beehive-influxdb-data-api
+        app: beehive-data-api
     spec:
       containers:
-      - name: beehive-influxdb-data-api
-        image: waggle/beehive-influxdb-data-api
+      - name: beehive-data-api
+        image: waggle/beehive-data-api
         ports:
           - containerPort: 10000
             name: http
@@ -38,5 +38,5 @@ spec:
           - name: INFLUXDB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: beehive-influxdb-data-api-secret
+                name: beehive-data-api-secret
                 key: token

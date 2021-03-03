@@ -144,7 +144,7 @@ func buildRangeSubquery(query *Query) (string, error) {
 		parts = append(parts, "start:"+query.Start)
 	}
 	if query.End != "" {
-		parts = append(parts, "end:"+query.End)
+		parts = append(parts, "stop:"+query.End)
 	}
 	if len(parts) > 0 {
 		return fmt.Sprintf(`range(%s)`, strings.Join(parts, ",")), nil

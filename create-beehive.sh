@@ -62,9 +62,9 @@ kubectl apply -f kubernetes/beehive-influxdb-loader.yaml
 
 echo "generating token for data api"
 token=$(generate_influxdb_token --read-buckets)
-kubectl create secret generic beehive-influxdb-data-api-secret \
+kubectl create secret generic beehive-data-api-secret \
     --from-literal=token="$token"
-kubectl apply -f kubernetes/beehive-influxdb-data-api.yaml
+kubectl apply -f kubernetes/beehive-data-api.yaml
 
 echo "creating credentials for but will not deploy message generator"
 pki-tools/create-and-sign-tls-secret.sh beehive-message-generator beehive-message-generator-tls-secret
