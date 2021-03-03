@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: influxdb-loader
+  name: beehive-message-generator
 spec:
   selector:
     matchLabels:
-      app: influxdb-loader
+      app: beehive-message-generator
   template:
     metadata:
       labels:
-        app: influxdb-loader
+        app: beehive-message-generator
     spec:
       containers:
-      - name: influxdb-loader
-        image: waggle/beehive-influxdb-loader
+      - name: beehive-message-generator
+        image: waggle/beehive-message-generator
         env:
           - name: RABBITMQ_HOST
-            value: "rabbitmq"
+            value: "beehive-rabbitmq"
           - name: RABBITMQ_PORT
             value: "5671"
           - name: RABBITMQ_CACERTFILE
@@ -25,18 +25,6 @@ spec:
             value: "/etc/tls/cert.pem"
           - name: RABBITMQ_KEYFILE
             value: "/etc/tls/key.pem"
-
-          - name: INFLUXDB_URL
-            value: "http://influxdb:8086"
-          - name: INFLUXDB_BUCKET
-            value: "waggle"
-          - name: INFLUXDB_ORG
-            value: "waggle"
-          - name: INFLUXDB_TOKEN
-            valueFrom:
-              secretKeyRef:
-                name: influxdb-loader-secret
-                key: token
         volumeMounts:
           - name: tls
             mountPath: "/etc/tls"
@@ -44,4 +32,4 @@ spec:
       volumes:
         - name: tls
           secret:
-            secretName: influxdb-loader-tls-secret
+            secretName: beehive-message-generator-tls-secret
