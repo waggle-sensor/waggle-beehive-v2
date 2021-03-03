@@ -20,7 +20,6 @@ openssl req -new -key "$keyfile" -out "$csrfile" -config csr.conf -subj "/CN=$cn
 openssl x509 -req -in "$csrfile" -CA cacert.pem -CAkey cakey.pem \
     -CAcreateserial -out "$certfile" -days 365 \
     -extensions v3_ext -extfile csr.conf
-openssl x509 -in "$certfile" -text
 
 # define rabbitmq credentials for beehive services
 if kubectl get secret "$secret_name" &> /dev/null; then
