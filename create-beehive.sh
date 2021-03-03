@@ -6,17 +6,8 @@ echo "creating tls and ssh ca"
 pki-tools/create-ca.sh
 
 echo "deploying rabbitmq"
-if kubectl get secret rabbitmq-config-secret &> /dev/null; then
-    kubectl delete secret rabbitmq-config-secret
-fi
-
-kubectl create secret generic rabbitmq-config-secret \
-    --from-file=rabbitmq.conf=config/rabbitmq/rabbitmq.conf \
-    --from-file=enabled_plugins=config/rabbitmq/enabled_plugins \
-    --from-file=definitions.json=config/rabbitmq/definitions.json
-
-pki-tools/create-and-sign-tls-secret.sh rabbitmq rabbitmq-tls-secret
-kubectl apply -f kubernetes/rabbitmq.yaml
+pki-tools/create-and-sign-tls-secret.sh rabbitmq beehive-rabbitmq-tls-secret
+kubectl apply -f kubernetes/beehive-rabbitmq.yaml
 
 echo "deploying message logger"
 pki-tools/create-and-sign-tls-secret.sh message-logger message-logger-tls-secret
