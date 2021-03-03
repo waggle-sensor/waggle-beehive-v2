@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -70,5 +72,37 @@ func TestQueryResponse(t *testing.T) {
 		if bytes.Compare(b1, b2) != 0 {
 			t.Fatalf("records don't match\nexpect: %s\noutput: %s", b1, b2)
 		}
+	}
+}
+
+func TestQueryDisallowedField(t *testing.T) {
+	svc := &Service{
+		Backend: &DummyBackend{},
+	}
+
+	body := bytes.NewBufferString(`{
+		"start": "-4h",
+		"filters": {
+			"node": "node123"
+		}
+	}`)
+
+	r := httptest.NewRequest("POST", "/api/v1/query", body)
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, r)
+	resp := w.Result()
+
+	b, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatalf("failed to read response")
+	}
+
+	if !strings.Contains(string(b), `json: unknown field "filters"`) {
+		t.Fatalf("expected json error message. got %s.", string(b))
+	}
+
+	expectStatus := http.StatusBadRequest
+	if resp.StatusCode != expectStatus {
+		t.Fatalf("expected status %d. got %d", expectStatus, resp.StatusCode)
 	}
 }

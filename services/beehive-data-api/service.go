@@ -45,7 +45,7 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) *serviceE
 
 	query, err := parseQuery(r.Body)
 	if err != nil {
-		return &serviceError{err, "failed to parse query body", http.StatusBadRequest}
+		return &serviceError{err, err.Error(), http.StatusBadRequest}
 	}
 
 	queryStart := time.Now()
@@ -77,11 +77,14 @@ func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) *serviceE
 }
 
 func parseQuery(r io.Reader) (*Query, error) {
-	var query Query
-	if err := json.NewDecoder(r).Decode(&query); err != nil {
+	decoder := json.NewDecoder(r)
+	decoder.DisallowUnknownFields()
+
+	query := &Query{}
+	if err := decoder.Decode(query); err != nil {
 		return nil, err
 	}
-	return &query, nil
+	return query, nil
 }
 
 func writeRecord(w io.Writer, rec *Record) error {
