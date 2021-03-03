@@ -1,36 +1,36 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: influxdb
+    name: beehive-influxdb
 spec:
     ports:
-      - name: influxdb
+      - name: beehive-influxdb
         port: 8086
         targetPort: 8086
     selector:
-        app: influxdb
+        app: beehive-influxdb
     type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
     labels:
-        app: influxdb
-    name: influxdb
+        app: beehive-influxdb
+    name: beehive-influxdb
 spec:
     replicas: 1
     selector:
         matchLabels:
-            app: influxdb
-    serviceName: influxdb
+            app: beehive-influxdb
+    serviceName: beehive-influxdb
     template:
         metadata:
             labels:
-                app: influxdb
+                app: beehive-influxdb
         spec:
             containers:
               - image: quay.io/influxdb/influxdb:v2.0.3
-                name: influxdb
+                name: beehive-influxdb
                 ports:
                   - containerPort: 8086
                     name: influxdb
@@ -45,4 +45,4 @@ spec:
               - ReadWriteOnce
             resources:
                 requests:
-                    storage: 10G
+                    storage: 1G

@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: message-generator
+  name: beehive-message-generator
 spec:
   selector:
     matchLabels:
-      app: message-generator
+      app: beehive-message-generator
   template:
     metadata:
       labels:
-        app: message-generator
+        app: beehive-message-generator
     spec:
       containers:
-      - name: message-generator
+      - name: beehive-message-generator
         image: waggle/beehive-message-generator
         env:
           - name: RABBITMQ_HOST
-            value: "rabbitmq"
+            value: "beehive-rabbitmq"
           - name: RABBITMQ_PORT
             value: "5671"
           - name: RABBITMQ_CACERTFILE
@@ -32,4 +32,4 @@ spec:
       volumes:
         - name: tls
           secret:
-            secretName: message-generator-tls-secret
+            secretName: beehive-message-generator-tls-secret
