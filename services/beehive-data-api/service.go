@@ -9,36 +9,41 @@ import (
 	"time"
 )
 
+// Service keeps the service configuration for the SDR API service.
+type Service struct {
+	Backend Backend
+}
+
 type serviceError struct {
 	Error   error
 	Message string
 	Code    int
 }
 
-// Service keeps the service configuration for the SDR API service.
-type Service struct {
-	Backend Backend
+var serviceRoutes = map[string]func(*Service, http.ResponseWriter, *http.Request) *serviceError{
+	"/api/v1/query": serveQuery,
 }
 
 // ServeHTTP dispatches an HTTP request to the right handler.
 func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// TODO add simple index page
-	switch r.URL.Path {
-	case "/api/v1/query":
-		if err := svc.serveQuery(w, r); err != nil {
-			log.Printf("error %q %v", r.URL.Path, err.Error)
-			http.Error(w, err.Message, err.Code)
-		} else {
-			log.Printf("served %q", r.URL.Path)
-		}
-	default:
+	handler, ok := serviceRoutes[r.URL.Path]
+
+	if !ok {
 		http.NotFound(w, r)
+		return
+	}
+
+	if err := handler(svc, w, r); err != nil {
+		log.Printf("error %q %v", r.URL.Path, err.Error)
+		http.Error(w, err.Message, err.Code)
+	} else {
+		log.Printf("served %q", r.URL.Path)
 	}
 }
 
 // serveQuery parses a query request, translates and forwards it to InfluxDB
 // and writes the results back to the client.
-func (svc *Service) serveQuery(w http.ResponseWriter, r *http.Request) *serviceError {
+func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceError {
 	if r.Method != http.MethodPost {
 		return &serviceError{errors.New("invalid method"), "query api expects POST request", http.StatusMethodNotAllowed}
 	}
