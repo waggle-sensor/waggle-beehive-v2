@@ -11,10 +11,6 @@ spec:
       protocol: TCP
       port: 5671
       nodePort: 30000
-    - name: rabbitmq-management-https
-      protocol: TCP
-      port: 15671
-      nodePort: 30001
 ---
 apiVersion: v1
 kind: ConfigMap
