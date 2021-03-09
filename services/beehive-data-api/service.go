@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -62,7 +63,7 @@ func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceEr
 	}
 	defer results.Close()
 
-	// write all results to client
+	writeContentDispositionHeader(w)
 	w.WriteHeader(http.StatusOK)
 
 	for results.Next() {
@@ -94,4 +95,9 @@ func parseQuery(r io.Reader) (*Query, error) {
 
 func writeRecord(w io.Writer, rec *Record) error {
 	return json.NewEncoder(w).Encode(rec)
+}
+
+func writeContentDispositionHeader(w http.ResponseWriter) {
+	filename := time.Now().Format("sage-download-20060102150405.ndjson")
+	w.Header().Add("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, filename))
 }

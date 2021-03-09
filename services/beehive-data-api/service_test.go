@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 	"time"
@@ -104,5 +105,28 @@ func TestQueryDisallowedField(t *testing.T) {
 	expectStatus := http.StatusBadRequest
 	if resp.StatusCode != expectStatus {
 		t.Fatalf("expected status %d. got %d", expectStatus, resp.StatusCode)
+	}
+}
+
+func TestContentDispositionHeader(t *testing.T) {
+	svc := &Service{
+		Backend: &DummyBackend{},
+	}
+
+	body := bytes.NewBufferString(`{
+		"start": "-4h"
+	}`)
+
+	r := httptest.NewRequest("POST", "/api/v1/query", body)
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, r)
+	resp := w.Result()
+
+	pattern := regexp.MustCompile("attachment; filename=\"sage-download-(.+).ndjson\"")
+
+	s := resp.Header.Get("Content-Disposition")
+
+	if !pattern.MatchString(s) {
+		t.Fatalf("response must proper Content-Disposition header. got %q", s)
 	}
 }
