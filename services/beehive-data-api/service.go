@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -45,10 +44,6 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // serveQuery parses a query request, translates and forwards it to InfluxDB
 // and writes the results back to the client.
 func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceError {
-	if r.Method != http.MethodPost {
-		return &serviceError{errors.New("invalid method"), "query api expects POST request", http.StatusMethodNotAllowed}
-	}
-
 	query, err := parseQuery(r.Body)
 	if err != nil {
 		return &serviceError{err, err.Error(), http.StatusBadRequest}
@@ -63,6 +58,7 @@ func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceEr
 	}
 	defer results.Close()
 
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	writeContentDispositionHeader(w)
 	w.WriteHeader(http.StatusOK)
 
