@@ -51,18 +51,17 @@ def main():
             logging.warning("failed to parse message")
             return
 
-        try:
-            record = (influxdb_client.Point(msg.name)
-                .tag("node", msg.meta["node"])
-                .tag("plugin", msg.meta["plugin"])
-                .field("value", msg.value)
-                .time(msg.timestamp, WritePrecision.NS))
-        except KeyError as key:
-            ch.basic_ack(method.delivery_tag)
-            logging.warning("message missing meta %s", key)
-            return
+        # TODO santize measurement names / tags / values
+        record = {
+            "measurement": msg.name,
+            "tags": msg.meta,
+            "fields": {
+                "value": msg.value,
+            },
+            "time": msg.timestamp,
+        }
 
-        writer.write(bucket=args.influxdb_bucket, org=args.influxdb_org, record=record)
+        writer.write(bucket=args.influxdb_bucket, org=args.influxdb_org, record=record, write_precision=WritePrecision.NS)
         ch.basic_ack(method.delivery_tag)
         logging.debug("proccessed message %s", msg)
 
