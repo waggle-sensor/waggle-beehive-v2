@@ -51,6 +51,8 @@ Each record contains the following fields
 
 ## Example Queries
 
+_Warning: The Beehive used in the examples uses a self-signed certificate which is why we curl with the `-k` flag. In the future, this Beehive will use a proper signed certificiate._
+
 The following query will return all measurements with a name starting with `sys` in the last hour.
 
 ```sh
@@ -81,7 +83,7 @@ curl -k https://sdr.honeyhouse.one/api/v1/query -d '
 The following query will find all measurements from the metsense plugin in the last 24 hours.
 
 ```sh
-curl -X POST http://service-ip:10000/api/v1/query -d '
+curl -k https://sdr.honeyhouse.one/api/v1/query -d '
 {
     "start": "-24h",
     "filter": {
