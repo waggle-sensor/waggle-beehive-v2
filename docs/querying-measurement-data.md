@@ -43,7 +43,7 @@ Query responses are provided as newline separated JSON records. For example:
 
 Each record contains the following fields
 
-* `timestamp`: Timestamp as nanoseconds since UNIX epoch time.
+* `timestamp`: Timestamp of measurement.
 * `name`: Name of measurement.
 * `value`: Value of measurement.
 * `meta`: Metadata fields about measurement.
