@@ -14,4 +14,4 @@ The majority of users who simply want to get started with data from Beehive shou
 
 ## Usage Guides
 
-* [Querying measurements](./querying-measurement-data.md)
+* [Querying measurements](./querying-measurements.md)
