@@ -1,6 +1,6 @@
 # Beehive Documentation
 
-<img width="720px" src="./images/beehive-overview.svg">
+<img width="800px" src="./images/beehive-overview.svg">
 
 Beehive provides the core infrastructure for collecting, storing and getting data from Waggle nodes.
 
