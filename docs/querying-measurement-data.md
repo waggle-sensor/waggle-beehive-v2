@@ -66,7 +66,7 @@ curl -k https://sdr.honeyhouse.one/api/v1/query -d '
 '
 ```
 
-The following query will return all measurements with a name starting with `sys` in the between 10:00 and 12:00 on 2021-01-01.
+The following query will return all environmental related measurements between 10:00 and 12:00 on 2021-01-01.
 
 ```sh
 curl -k https://sdr.honeyhouse.one/api/v1/query -d '
@@ -74,7 +74,7 @@ curl -k https://sdr.honeyhouse.one/api/v1/query -d '
     "start": "2021-01-01T10:00:00Z",
     "end": "2021-01-01T12:00:00Z",
     "filter": {
-        "name": "sys.*"
+        "name": "env.*"
     }
 }
 '
