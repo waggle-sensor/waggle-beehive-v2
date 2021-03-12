@@ -1,6 +1,6 @@
 # Querying Measurement Data
 
-The following instructions will assume Beeive is deployed to the domain `honeyhouse.one`, but all the steps should apply any other domain.
+The following instructions will assume Beehive is deployed to the domain `honeyhouse.one`, but all the steps should apply any other domain.
 
 Beehive provides a simple data query API which supports:
 
