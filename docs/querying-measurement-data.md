@@ -80,15 +80,15 @@ curl -k https://sdr.honeyhouse.one/api/v1/query -d '
 '
 ```
 
-The following query will find all measurements from the metsense plugin in the last 24 hours.
+The following query will find all temperature related measurements from metsense v1.x plugins in the last 24 hours.
 
 ```sh
 curl -k https://sdr.honeyhouse.one/api/v1/query -d '
 {
     "start": "-24h",
     "filter": {
-        "node": "0000000000000001",
-        "plugin": "metsense:.*"
+        "plugin": "metsense:1.*",
+        "name": "env.temperature.*"
     }
 }
 '
