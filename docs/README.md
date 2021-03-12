@@ -1,5 +1,7 @@
 # Beehive Documentation
 
+<img width="640" src="./images/beehive-overview.svg">
+
 Beehive provides the core infrastructure for collecting, storing and getting data from Waggle nodes.
 
 ## Getting started with Beehive
@@ -12,4 +14,4 @@ The majority of users who simply want to get started with data from Beehive shou
 
 ## Usage Guides
 
-* [Querying measurement data](./querying-measurement-data.md)
+* [Querying measurements](./querying-measurement-data.md)

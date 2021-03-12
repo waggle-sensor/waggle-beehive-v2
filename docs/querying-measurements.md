@@ -1,4 +1,4 @@
-# Querying Measurement Data
+# Querying Measurements
 
 The following instructions will assume Beehive is deployed to the domain `honeyhouse.one`, but all the steps should apply any other domain.
 
