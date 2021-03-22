@@ -25,7 +25,7 @@ data:
 
     # use ssl for all message traffic
     listeners.ssl.default = 5671
-    ssl_options.cacertfile           = /etc/tls/cacert.pem
+    ssl_options.cacertfile           = /etc/ca/cacert.pem
     ssl_options.certfile             = /etc/tls/cert.pem
     ssl_options.keyfile              = /etc/tls/key.pem
     ssl_options.verify               = verify_peer
@@ -34,7 +34,7 @@ data:
 
     # use ssl for management console and api
     management.ssl.port       = 15671
-    management.ssl.cacertfile = /etc/tls/cacert.pem
+    management.ssl.cacertfile = /etc/ca/cacert.pem
     management.ssl.certfile   = /etc/tls/cert.pem
     management.ssl.keyfile    = /etc/tls/key.pem
 
@@ -53,15 +53,6 @@ data:
     load_definitions = /etc/rabbitmq/definitions.json
   definitions.json: |
     {
-        "users": [],
-        "vhosts": [
-            {"name": "/"}
-        ],
-        "permissions": [],
-        "topic_permissions": [],
-        "parameters": [],
-        "policies": [],
-        "queues": [],
         "exchanges": [
             {
                 "name": "waggle.msg",
@@ -72,8 +63,7 @@ data:
                 "internal": false,
                 "arguments": {}
             }
-        ],
-        "bindings": []
+        ]
     }
 ---
 apiVersion: apps/v1
@@ -97,8 +87,11 @@ spec:
           - name: config
             mountPath: /etc/rabbitmq
             readOnly: true
+          - name: ca-certificate
+            mountPath: "/etc/ca"
+            readOnly: true
           - name: tls
-            mountPath: /etc/tls
+            mountPath: "/etc/tls"
             readOnly: true
           - name: data
             mountPath: /var/lib/rabbitmq
@@ -121,6 +114,9 @@ spec:
         - name: config
           configMap:
             name: beehive-rabbitmq-config
+        - name: ca-certificate
+          configMap:
+            name: beehive-ca-certificate
         - name: tls
           secret:
             secretName: beehive-rabbitmq-tls-secret
@@ -132,4 +128,3 @@ spec:
       resources:
         requests:
           storage: 1Gi
-# TODO(sean) split cacert stuff out from key/cert and just use kubernetes tls secret
