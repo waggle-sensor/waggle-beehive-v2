@@ -63,5 +63,5 @@ kubectl create secret generic beehive-data-api-influxdb-token \
 kubectl apply -f kubernetes/beehive-data-api.yaml
 
 echo "creating credentials for but will not deploy message generator"
-./update-rabbitmq-auth.sh beehive-message-generator-auth beehive-message-generator '^$' '^waggle.msg$' '^$'
+./update-rabbitmq-auth.sh beehive-message-generator-auth beehive-message-generator '^$' '^waggle.msg$' '^$' 'impersonator'
 # kubectl apply -f kubernetes/beehive-message-generator.yaml

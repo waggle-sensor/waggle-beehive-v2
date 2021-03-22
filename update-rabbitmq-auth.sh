@@ -9,6 +9,7 @@ username="$2"
 confperm="$3"
 writeperm="$4"
 readperm="$5"
+tags="$6"
 password="$(openssl rand -hex 20)"
 
 echo "updating kubernetes config ${secretname}..."
@@ -32,6 +33,10 @@ while ! rmqctl authenticate_user "$username" "$password"; do
 done
 
 while ! rmqctl set_permissions "$username" "$confperm" "$writeperm" "$readperm"; do
+  sleep 3
+done
+
+while ! rmqctl set_user_tags "$username" "$tags"; do
   sleep 3
 done
 ) &> /dev/null
