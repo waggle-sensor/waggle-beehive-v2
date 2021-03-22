@@ -43,7 +43,6 @@ spec:
               secretKeyRef:
                 name: beehive-influxdb-loader-secret
                 key: token
-
         volumeMounts:
           - name: ca-certificate
             mountPath: "/etc/tls"

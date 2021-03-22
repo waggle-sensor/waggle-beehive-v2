@@ -5,9 +5,6 @@
 
 cd $(dirname $0)
 
-# echo "creating tls and ssh ca"
-# pki-tools/create-ca.sh
-
 echo "deploying rabbitmq"
 kubectl apply -f kubernetes/beehive-rabbitmq.yaml
 
@@ -66,5 +63,5 @@ kubectl create secret generic beehive-data-api-secret \
 kubectl apply -f kubernetes/beehive-data-api.yaml
 
 echo "creating credentials for but will not deploy message generator"
-./update-rabbitmq-auth.sh beehive-message-generator-auth beehive-message-generator '.*' '.*' '.*'
+./update-rabbitmq-auth.sh beehive-message-generator-auth beehive-message-generator '^$' '^waggle.msg$' '^$'
 # kubectl apply -f kubernetes/beehive-message-generator.yaml

@@ -53,51 +53,11 @@ data:
     load_definitions = /etc/rabbitmq/definitions.json
   definitions.json: |
     {
-        "users": [
-            {
-                "name": "beehive-message-logger",
-                "tags": "",
-                "limits": {}
-            },
-            {
-                "name": "beehive-message-generator",
-                "tags": "impersonator",
-                "limits": {}
-            },
-            {
-                "name": "beehive-influxdb-loader",
-                "tags": "",
-                "limits": {}
-            }
-        ],
+        "users": [],
         "vhosts": [
-            {
-                "name": "/"
-            }
+            {"name": "/"}
         ],
-        "permissions": [
-            {
-                "user": "beehive-message-logger",
-                "vhost": "/",
-                "configure": ".*",
-                "write": ".*",
-                "read": ".*"
-            },
-            {
-                "user": "beehive-message-generator",
-                "vhost": "/",
-                "configure": "^$",
-                "write": "waggle.msg",
-                "read": "^$"
-            },
-            {
-                "user": "beehive-influxdb-loader",
-                "vhost": "/",
-                "configure": ".*",
-                "write": ".*",
-                "read": ".*"
-            }
-        ],
+        "permissions": [],
         "topic_permissions": [],
         "parameters": [],
         "policies": [],
