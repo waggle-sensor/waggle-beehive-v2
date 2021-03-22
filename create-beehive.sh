@@ -51,14 +51,14 @@ generate_influxdb_token() {
 
 echo "generating token for data loader"
 token=$(generate_influxdb_token --write-buckets)
-kubectl create secret generic beehive-influxdb-loader-secret \
+kubectl create secret generic beehive-influxdb-loader-influxdb-token \
     --from-literal=token="$token"
 ./update-rabbitmq-auth.sh beehive-influxdb-loader-auth beehive-influxdb-loader '.*' '.*' '.*'
 kubectl apply -f kubernetes/beehive-influxdb-loader.yaml
 
 echo "generating token for data api"
 token=$(generate_influxdb_token --read-buckets)
-kubectl create secret generic beehive-data-api-secret \
+kubectl create secret generic beehive-data-api-influxdb-token \
     --from-literal=token="$token"
 kubectl apply -f kubernetes/beehive-data-api.yaml
 

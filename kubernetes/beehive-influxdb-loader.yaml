@@ -41,7 +41,7 @@ spec:
           - name: INFLUXDB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: beehive-influxdb-loader-secret
+                name: beehive-influxdb-loader-influxdb-token
                 key: token
         volumeMounts:
           - name: ca-certificate
