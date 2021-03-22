@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 rmqctl() {
     kubectl exec svc/beehive-rabbitmq -- rabbitmqctl "$@"
@@ -26,9 +26,13 @@ EOF
 echo "updating rabbitmq user ${username}..."
 (
 while ! rmqctl authenticate_user "$username" "$password"; do
-    rmqctl add_user "$username" "$password" || rmqctl change_password "$username" "$password"
+    while ! (rmqctl add_user "$username" "$password" || rmqctl change_password "$username" "$password"); do
+      sleep 3
+    done
 done
 
-rmqctl set_permissions "$username" "$confperm" "$writeperm" "$readperm"
+while ! rmqctl set_permissions "$username" "$confperm" "$writeperm" "$readperm"; do
+  sleep 3
+done
 ) &> /dev/null
 echo "done"
