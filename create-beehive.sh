@@ -13,8 +13,7 @@ echo "deploying message logger"
 kubectl apply -f kubernetes/beehive-message-logger.yaml
 
 echo "deploying upload server"
-# pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server beehive-upload-server-ssh-secret
-# kubectl apply -f kubernetes/beehive-upload-server.yaml
+kubectl apply -f kubernetes/beehive-upload-server.yaml
 
 echo "deploying influxdb"
 kubectl apply -f kubernetes/beehive-influxdb.yaml

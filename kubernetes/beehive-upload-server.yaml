@@ -29,10 +29,20 @@ spec:
       containers:
       - image: waggle/beehive-upload-server
         name: beehive-upload-server
+        env:
+        - name: SSH_CA_PUBKEY
+          value: "/etc/ca/ca.pub"
+        - name: SSH_HOST_KEY
+          value: "/etc/waggle/ssh-host-key"
+        - name: SSH_HOST_CERT
+          value: "/etc/waggle/ssh-host-key-cert.pub"
         ports:
         - name: ssh
           containerPort: 22
         volumeMounts:
+        - name: ssh-ca-key
+          mountPath: /etc/ca
+          readOnly: true
         - name: ssh-host-key
           mountPath: /etc/waggle
           readOnly: true
@@ -42,7 +52,11 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 60
       volumes:
+      - name: ssh-ca-key
+        configMap:
+          name: beehive-ssh-ca
       - name: ssh-host-key
         secret:
-          secretName: beehive-upload-server-ssh-secret
+          secretName: beehive-upload-server-ssh-host-key
           defaultMode: 0600
+
