@@ -132,3 +132,4 @@ spec:
       resources:
         requests:
           storage: 1Gi
+# TODO(sean) split cacert stuff out from key/cert and just use kubernetes tls secret
