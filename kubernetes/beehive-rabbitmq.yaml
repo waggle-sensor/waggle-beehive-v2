@@ -29,7 +29,7 @@ data:
     ssl_options.certfile             = /etc/tls/cert.pem
     ssl_options.keyfile              = /etc/tls/key.pem
     ssl_options.verify               = verify_peer
-    ssl_options.fail_if_no_peer_cert = true
+    ssl_options.fail_if_no_peer_cert = false
     ssl_cert_login_from              = common_name
 
     # use ssl for management console and api

@@ -5,20 +5,19 @@
 
 cd $(dirname $0)
 
-echo "creating tls and ssh ca"
-pki-tools/create-ca.sh
+# echo "creating tls and ssh ca"
+# pki-tools/create-ca.sh
 
 echo "deploying rabbitmq"
-pki-tools/create-and-sign-tls-secret.sh beehive-rabbitmq beehive-rabbitmq-tls-secret
 kubectl apply -f kubernetes/beehive-rabbitmq.yaml
 
 echo "deploying message logger"
-pki-tools/create-and-sign-tls-secret.sh beehive-message-logger beehive-message-logger-tls-secret
+./update-rabbitmq-auth.sh beehive-message-logger-auth beehive-message-logger '.*' '.*' '.*'
 kubectl apply -f kubernetes/beehive-message-logger.yaml
 
 echo "deploying upload server"
-pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server beehive-upload-server-ssh-secret
-kubectl apply -f kubernetes/beehive-upload-server.yaml
+# pki-tools/create-and-sign-ssh-host-key-secret.sh beehive-upload-server beehive-upload-server-ssh-secret
+# kubectl apply -f kubernetes/beehive-upload-server.yaml
 
 echo "deploying influxdb"
 kubectl apply -f kubernetes/beehive-influxdb.yaml
@@ -57,7 +56,7 @@ echo "generating token for data loader"
 token=$(generate_influxdb_token --write-buckets)
 kubectl create secret generic beehive-influxdb-loader-secret \
     --from-literal=token="$token"
-pki-tools/create-and-sign-tls-secret.sh beehive-influxdb-loader beehive-influxdb-loader-tls-secret
+./update-rabbitmq-auth.sh beehive-influxdb-loader-auth beehive-influxdb-loader '.*' '.*' '.*'
 kubectl apply -f kubernetes/beehive-influxdb-loader.yaml
 
 echo "generating token for data api"
@@ -67,5 +66,5 @@ kubectl create secret generic beehive-data-api-secret \
 kubectl apply -f kubernetes/beehive-data-api.yaml
 
 echo "creating credentials for but will not deploy message generator"
-pki-tools/create-and-sign-tls-secret.sh beehive-message-generator beehive-message-generator-tls-secret
+./update-rabbitmq-auth.sh beehive-message-generator-auth beehive-message-generator '.*' '.*' '.*'
 # kubectl apply -f kubernetes/beehive-message-generator.yaml

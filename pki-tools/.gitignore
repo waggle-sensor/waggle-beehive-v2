@@ -1,6 +1,0 @@
-*.pem
-*.srl
-*.tar
-*.tar.gz
-ca*
-ssh-key*

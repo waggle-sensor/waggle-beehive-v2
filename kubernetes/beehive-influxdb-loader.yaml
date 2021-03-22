@@ -19,12 +19,18 @@ spec:
             value: "beehive-rabbitmq"
           - name: RABBITMQ_PORT
             value: "5671"
+          - name: RABBITMQ_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: beehive-influxdb-loader-auth
+                key: username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: beehive-influxdb-loader-auth
+                key: password
           - name: RABBITMQ_CACERTFILE
             value: "/etc/tls/cacert.pem"
-          - name: RABBITMQ_CERTFILE
-            value: "/etc/tls/cert.pem"
-          - name: RABBITMQ_KEYFILE
-            value: "/etc/tls/key.pem"
 
           - name: INFLUXDB_URL
             value: "http://beehive-influxdb:8086"
@@ -37,11 +43,12 @@ spec:
               secretKeyRef:
                 name: beehive-influxdb-loader-secret
                 key: token
+
         volumeMounts:
-          - name: tls
+          - name: ca-certificate
             mountPath: "/etc/tls"
             readOnly: true
       volumes:
-        - name: tls
-          secret:
-            secretName: beehive-influxdb-loader-tls-secret
+        - name: ca-certificate
+          configMap:
+            name: beehive-ca-certificate
