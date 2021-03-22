@@ -53,6 +53,15 @@ data:
     load_definitions = /etc/rabbitmq/definitions.json
   definitions.json: |
     {
+        "users": [],
+        "vhosts": [
+            {"name": "/"}
+        ],
+        "permissions": [],
+        "topic_permissions": [],
+        "parameters": [],
+        "policies": [],
+        "queues": [],
         "exchanges": [
             {
                 "name": "waggle.msg",
@@ -63,7 +72,8 @@ data:
                 "internal": false,
                 "arguments": {}
             }
-        ]
+        ],
+        "bindings": []
     }
 ---
 apiVersion: apps/v1
