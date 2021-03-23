@@ -18,7 +18,7 @@ spec:
           - name: RABBITMQ_HOST
             value: "beehive-rabbitmq"
           - name: RABBITMQ_PORT
-            value: "5671"
+            value: "49191"
           - name: RABBITMQ_USERNAME
             valueFrom:
               secretKeyRef:
