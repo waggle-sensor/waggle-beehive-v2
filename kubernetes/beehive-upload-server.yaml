@@ -3,14 +3,13 @@ kind: Service
 metadata:
   name: beehive-upload-server
 spec:
-  type: NodePort
   selector:
     app: beehive-upload-server
   ports:
-    - name: ssh
-      protocol: TCP
-      port: 22
-      nodePort: 30002
+    - protocol: TCP
+      port: 49192
+      targetPort: 22
+  type: LoadBalancer
 ---
 apiVersion: apps/v1
 kind: StatefulSet

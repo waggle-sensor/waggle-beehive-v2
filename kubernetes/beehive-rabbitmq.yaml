@@ -3,14 +3,13 @@ kind: Service
 metadata:
   name: beehive-rabbitmq
 spec:
-  type: NodePort
   selector:
     app: beehive-rabbitmq
   ports:
-    - name: amqps
-      protocol: TCP
-      port: 5671
-      nodePort: 30000
+    - protocol: TCP
+      port: 49191
+      targetPort: 5671
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: ConfigMap
