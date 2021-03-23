@@ -12,12 +12,12 @@ spec:
       port: 22
       nodePort: 30002
 ---
-# TODO use volume for managing private credentials
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: beehive-upload-server
 spec:
+  serviceName: beehive-upload-server
   selector:
     matchLabels:
       app: beehive-upload-server
