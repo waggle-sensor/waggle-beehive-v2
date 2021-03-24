@@ -1,23 +1,50 @@
 # Installing Beehive in a Kubernetes cluster
 
+## Install Kubernetes
+
 The following instructions use [k3s](https://k3s.io), but most of the steps should apply to any Kubernetes cluster.
 
-1. Install and start [k3s](https://k3s.io).
+1. Install [k3s](https://k3s.io).
 
-2. Clone the [Beehive repo](https://github.com/waggle-sensor/waggle-beehive-v2).
+## Install Beehive Credentials
+
+1. Clone the [Waggle PKI Tools repo](https://github.com/waggle-sensor/waggle-pki-tools)
+
+```sh
+git clone https://github.com/waggle-sensor/waggle-pki-tools
+```
+
+2. Create credentials for Beehive.
+
+```sh
+cd waggle-pki-tools
+./create-credentials-for-beehive.sh
+```
+
+3. Install credentials in Kubernetes cluster.
+
+```sh
+kubectl apply -f credentials/beehive.yaml
+```
+
+This will provide everything our cluster needs to authenticate and secure connections.
+
+## Install Beehive
+
+1. Clone the [Beehive repo](https://github.com/waggle-sensor/waggle-beehive-v2).
 
 ```sh
 git clone https://github.com/waggle-sensor/waggle-beehive-v2
 ```
 
-3. Install Beehive to the Kubernetes cluster.
+2. Install Beehive to the Kubernetes cluster.
 
 ```sh
 cd waggle-beehive-v2
 ./create-beehive.sh
 ```
 
-4. Confirm Beehive is running.
+3. Confirm Beehive is running.
 
 We'll confirm that Beehive is up and running using the following.
 
