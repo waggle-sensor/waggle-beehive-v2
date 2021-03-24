@@ -18,18 +18,24 @@ spec:
           - name: RABBITMQ_HOST
             value: "beehive-rabbitmq"
           - name: RABBITMQ_PORT
-            value: "5671"
+            value: "49191"
+          - name: RABBITMQ_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: beehive-message-generator-auth
+                key: username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: beehive-message-generator-auth
+                key: password
           - name: RABBITMQ_CACERTFILE
             value: "/etc/tls/cacert.pem"
-          - name: RABBITMQ_CERTFILE
-            value: "/etc/tls/cert.pem"
-          - name: RABBITMQ_KEYFILE
-            value: "/etc/tls/key.pem"
         volumeMounts:
-          - name: tls
+          - name: ca-certificate
             mountPath: "/etc/tls"
             readOnly: true
       volumes:
-        - name: tls
-          secret:
-            secretName: beehive-message-generator-tls-secret
+        - name: ca-certificate
+          configMap:
+            name: beehive-ca-certificate

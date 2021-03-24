@@ -3,14 +3,13 @@ kind: Service
 metadata:
   name: beehive-rabbitmq
 spec:
-  type: NodePort
   selector:
     app: beehive-rabbitmq
   ports:
-    - name: amqps
-      protocol: TCP
-      port: 5671
-      nodePort: 30000
+    - protocol: TCP
+      port: 49191
+      targetPort: 5671
+  type: LoadBalancer
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -25,16 +24,16 @@ data:
 
     # use ssl for all message traffic
     listeners.ssl.default = 5671
-    ssl_options.cacertfile           = /etc/tls/cacert.pem
+    ssl_options.cacertfile           = /etc/ca/cacert.pem
     ssl_options.certfile             = /etc/tls/cert.pem
     ssl_options.keyfile              = /etc/tls/key.pem
     ssl_options.verify               = verify_peer
-    ssl_options.fail_if_no_peer_cert = true
+    ssl_options.fail_if_no_peer_cert = false
     ssl_cert_login_from              = common_name
 
     # use ssl for management console and api
     management.ssl.port       = 15671
-    management.ssl.cacertfile = /etc/tls/cacert.pem
+    management.ssl.cacertfile = /etc/ca/cacert.pem
     management.ssl.certfile   = /etc/tls/cert.pem
     management.ssl.keyfile    = /etc/tls/key.pem
 
@@ -53,51 +52,11 @@ data:
     load_definitions = /etc/rabbitmq/definitions.json
   definitions.json: |
     {
-        "users": [
-            {
-                "name": "beehive-message-logger",
-                "tags": "",
-                "limits": {}
-            },
-            {
-                "name": "beehive-message-generator",
-                "tags": "impersonator",
-                "limits": {}
-            },
-            {
-                "name": "beehive-influxdb-loader",
-                "tags": "",
-                "limits": {}
-            }
-        ],
+        "users": [],
         "vhosts": [
-            {
-                "name": "/"
-            }
+            {"name": "/"}
         ],
-        "permissions": [
-            {
-                "user": "beehive-message-logger",
-                "vhost": "/",
-                "configure": ".*",
-                "write": ".*",
-                "read": ".*"
-            },
-            {
-                "user": "beehive-message-generator",
-                "vhost": "/",
-                "configure": "^$",
-                "write": "waggle.msg",
-                "read": "^$"
-            },
-            {
-                "user": "beehive-influxdb-loader",
-                "vhost": "/",
-                "configure": ".*",
-                "write": ".*",
-                "read": ".*"
-            }
-        ],
+        "permissions": [],
         "topic_permissions": [],
         "parameters": [],
         "policies": [],
@@ -137,8 +96,11 @@ spec:
           - name: config
             mountPath: /etc/rabbitmq
             readOnly: true
+          - name: ca-certificate
+            mountPath: "/etc/ca"
+            readOnly: true
           - name: tls
-            mountPath: /etc/tls
+            mountPath: "/etc/tls"
             readOnly: true
           - name: data
             mountPath: /var/lib/rabbitmq
@@ -161,6 +123,9 @@ spec:
         - name: config
           configMap:
             name: beehive-rabbitmq-config
+        - name: ca-certificate
+          configMap:
+            name: beehive-ca-certificate
         - name: tls
           secret:
             secretName: beehive-rabbitmq-tls-secret

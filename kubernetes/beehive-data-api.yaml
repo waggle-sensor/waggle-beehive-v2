@@ -38,5 +38,5 @@ spec:
           - name: INFLUXDB_TOKEN
             valueFrom:
               secretKeyRef:
-                name: beehive-data-api-secret
+                name: beehive-data-api-influxdb-token
                 key: token
