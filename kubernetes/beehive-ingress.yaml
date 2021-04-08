@@ -28,3 +28,14 @@ spec:
             name: beehive-influxdb
             port:
               number: 8086
+  # TODO make domain name part of config
+  - host: admin.honeyhouse.one
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: beehive-admin-gui
+            port:
+              number: 80
