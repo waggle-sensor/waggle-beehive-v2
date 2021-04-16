@@ -1,5 +1,11 @@
 # Beehive V2
 
+## Documentation
+
+The latest Beehive documentation can be found [here](https://github.com/waggle-sensor/waggle-beehive-v2/tree/main/docs).
+
+## Developer Notes
+
 *These notes are a work in progress, as Beehive V2 is under rapid development.*
 
 Beehive server provides the data and management pipeline for Waggle nodes. This repo contains
