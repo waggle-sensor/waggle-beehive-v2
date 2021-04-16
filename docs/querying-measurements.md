@@ -2,12 +2,21 @@
 
 The following instructions will assume Beehive is deployed to the domain `honeyhouse.one`, but all the steps should apply any other domain.
 
-Beehive provides a simple data query API which supports:
+## Data Model
+
+Beehive adopts a data model of "timeseries tagged with simple key-value metadata" similar to [InfluxDB](https://www.influxdata.com/products/influxdb/) and [Prometheus](https://prometheus.io). Abstractly, this means every measurement comes with:
+
+* A timestamp of when measurement was taken.
+* A measurement name. (ex. `env.temperature`)
+* A measurement value. (ex. `23.1`)
+* Simple key-value metadata pairs. (ex. `node=1234, host=rpi, camera=bottom`)
+
+## Query API
+
+Beehive's query API provides the following features:
 
 * Time range selection
 * Filtering by metadata
-
-## Query Format
 
 The query request used by the API is a JSON body with the following structure
 
@@ -29,7 +38,7 @@ Absolute timestamps must be in a `YYYY-MM-DDTHH:MM:SSZ` format.
 
 Relative timestamps must be in a `±ns`, `±nm` or `±nh` format where `s`, `m` and `h` indicate units of seconds, minutes and hours and `n` is the number. For example, `-4h` indicates 4 hours in the past.
 
-## Response Format
+## Query Response Format
 
 Query responses are provided as newline separated JSON records. For example:
 
