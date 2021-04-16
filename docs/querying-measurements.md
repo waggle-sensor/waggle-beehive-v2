@@ -9,7 +9,7 @@ Beehive adopts a data model of "timeseries tagged with simple key-value metadata
 * A timestamp of when measurement was taken.
 * A measurement name. (ex. `env.temperature`)
 * A measurement value. (ex. `23.1`)
-* Simple key-value metadata pairs. (ex. `node=1234, host=rpi, camera=bottom`)
+* Simple key-value metadata pairs. (ex. `node=1234, host=rpi, plugin=metsense:1.0.3, camera=bottom`)
 
 ## Query API
 
