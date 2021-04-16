@@ -1,6 +1,10 @@
 # Installing Beehive in a Vagrant development box
 
-This document is intended for folks who are _developing_ Beehive. Most users should instead [deploy Beehive to a Kubernetes cluster](installing-beehive-in-a-kubernetes-cluster.md).
+This document is primarily intended for developers who are working on Beehive!
+
+Most users should instead [deploy Beehive to a Kubernetes cluster](installing-beehive-in-a-kubernetes-cluster.md).
+
+## Installation Steps
 
 1. Install [Vagrant](https://www.vagrantup.com).
 2. Run the Vagrant box (`vagrant up`) and connect (`vagrant ssh`).
