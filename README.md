@@ -1,20 +1,18 @@
-# Beehive V2
+# Beehive Documentation
 
-## Documentation
+<img width="800px" src="docs/images/beehive-overview.svg">
 
-The latest Beehive documentation can be found [here](https://github.com/waggle-sensor/waggle-beehive-v2/tree/main/docs).
+Beehive provides the core infrastructure for collecting, storing and getting data from Waggle nodes.
 
-## Developer Notes
+## Getting started with Beehive
 
-*These notes are a work in progress, as Beehive V2 is under rapid development.*
+The majority of users who simply want to get started with data from Beehive should follow the [usage guides](#usage-guides). Advanced users who want to install their own Beehive can follow one of the [installation guides](#installation-guides).
 
-Beehive server provides the data and management pipeline for Waggle nodes. This repo contains
-tools and configs to help deploy a Beehive server.
+## Installation Guides
 
-The quickest way to deploy a Beehive server for dev/test is use the provided Vagrantbox:
-1. Install [Vagrant](https://www.vagrantup.com).
-2. Run the Vagrant box (`vagrant up`) and connect (`vagrant ssh`).
-3. Inside of the Vaggrant box, `sudo -s` and `cd /vagrant`
-4. Run the `./create-beehive.sh` script.
+* [Installing Beehive in a Kubernetes cluster](docs/installing-beehive-in-a-kubernetes-cluster.md)
+* [Installing Beehive in a Vagrant development box](docs/installing-beehive-in-a-vagrant-development-box.md)
 
-*These steps are likely to change. The initial plan is to spin up a dev/test Beehive at Vagrant provision time.*
+## Usage Guides
+
+* [Querying measurements](docs/querying-measurements.md)
