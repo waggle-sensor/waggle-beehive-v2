@@ -120,6 +120,11 @@ func buildFluxQuery(bucket string, query *Query) (string, error) {
 		parts = append(parts, rangeSubquery)
 	}
 
+	// add tail subquery if included
+	if query.Tail != nil {
+		parts = append(parts, fmt.Sprintf("tail(n:%d)", *query.Tail))
+	}
+
 	// add filter subquery, if not empty
 	filterSubquery, err := buildFilterSubquery(query)
 	if err != nil {

@@ -22,6 +22,7 @@ type Results interface {
 type Query struct {
 	Start  string            `json:"start,omitempty"`
 	End    string            `json:"end,omitempty"`
+	Tail   *int              `json:"tail,omitempty"`
 	Filter map[string]string `json:"filter"`
 }
 
