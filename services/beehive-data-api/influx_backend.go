@@ -120,6 +120,11 @@ func buildFluxQuery(bucket string, query *Query) (string, error) {
 		parts = append(parts, rangeSubquery)
 	}
 
+	// add limit, if included
+	if query.Limit != nil {
+		parts = append(parts, fmt.Sprintf("limit(n:%d)", *query.Limit))
+	}
+
 	// add filter subquery, if not empty
 	filterSubquery, err := buildFilterSubquery(query)
 	if err != nil {
