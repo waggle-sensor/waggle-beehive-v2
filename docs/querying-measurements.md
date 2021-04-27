@@ -17,6 +17,7 @@ Beehive's query API provides the following features:
 
 * Time range selection
 * Filtering by metadata
+* Limiting number of results
 
 The query request used by the API is a JSON body with the following structure
 
@@ -28,11 +29,12 @@ The query request used by the API is a JSON body with the following structure
         "tag1": "match pattern 1",
         "tag2": "match pattern 2",
         "...": "...",
-    }
+    },
+    "tail": optional number of most recent results to limit to,
 }
 ```
 
-The `start`, `end` and `filter` fields are all optional and can be included as needed.
+The `start`, `end`, `filter` and `tail` fields are all optional and can be included as needed.
 
 Absolute timestamps must be in a `YYYY-MM-DDTHH:MM:SSZ` format.
 
@@ -98,6 +100,20 @@ curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/qu
     "filter": {
         "plugin": "metsense:1.*",
         "name": "env.temperature.*"
+    }
+}
+'
+```
+
+The following query will get the latest uptime measurements from all devices in the last 7 days.
+
+```sh
+curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/query -d '
+{
+    "start": "-7d",
+    "tail": 1,
+    "filter": {
+        "name": "sys.uptime"
     }
 }
 '
