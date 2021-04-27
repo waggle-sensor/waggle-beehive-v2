@@ -58,11 +58,11 @@ func TestBuildFluxQuery(t *testing.T) {
 			Query: &Query{
 				Start: "-4h",
 				End:   "-2h",
-				Limit: intptr(123),
+				Tail:  intptr(123),
 				Filter: map[string]string{
 					"name": "env.temp.*",
 				}},
-			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h) |> limit(n:123) |> filter(fn: (r) => r._measurement =~ /^env.temp.*$/)`,
+			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h) |> tail(n:123) |> filter(fn: (r) => r._measurement =~ /^env.temp.*$/)`,
 		},
 	}
 
