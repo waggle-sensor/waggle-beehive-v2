@@ -45,6 +45,8 @@ spec:
         - name: ssh-host-key
           mountPath: /etc/waggle
           readOnly: true
+        - name: home-dirs
+          mountPath: /home
         livenessProbe:
           tcpSocket:
             port: ssh
@@ -58,4 +60,8 @@ spec:
         secret:
           secretName: beehive-upload-server-ssh-host-key
           defaultMode: 0600
-
+      - name: home-dirs
+        hostPath:
+          # TODO(sean) make this part of config or figure out a different way to get files out!
+          path: /root/upload-server-home-dirs
+          type: DirectoryOrCreate
