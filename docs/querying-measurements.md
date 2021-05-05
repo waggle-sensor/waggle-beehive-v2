@@ -30,7 +30,7 @@ The query request used by the API is a JSON body with the following structure
         "tag2": "match pattern 2",
         "...": "...",
     },
-    "tail": optional number of most recent results to limit to,
+    "tail": 100,
 }
 ```
 
