@@ -25,20 +25,24 @@ The query request used by the API is a JSON body with the following structure
 {
     "start": "absolute or relative timestamp",
     "end": "absolute or relative timestamp",
+    "tail": 100,
     "filter": {
         "tag1": "match pattern 1",
         "tag2": "match pattern 2",
         "...": "...",
-    },
-    "tail": 100,
+    }
 }
 ```
 
 The `start`, `end`, `filter` and `tail` fields are all optional and can be included as needed.
 
+The `start` and `end` fields specify an absolute or relative time range to query.
+
 Absolute timestamps must be in a `YYYY-MM-DDTHH:MM:SSZ` format.
 
 Relative timestamps must be in a `±ns`, `±nm` or `±nh` format where `s`, `m` and `h` indicate units of seconds, minutes and hours and `n` is the number. For example, `-4h` indicates 4 hours in the past.
+
+The `tail` field limits results to the _most recent_ `n` records _for each_ unique combination of measurement name and meta fields.
 
 ## Query Response Format
 
