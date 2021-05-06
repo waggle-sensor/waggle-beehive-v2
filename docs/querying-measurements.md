@@ -1,6 +1,6 @@
 # Querying Measurements
 
-The following instructions will assume Beehive is deployed to the domain `honeyhouse.one`, but all the steps should apply any other domain.
+The following instructions will assume Beehive is deployed to the domain `sagecontinuum.org`, but all the steps should apply any other domain.
 
 ## Data Model
 
@@ -49,11 +49,11 @@ The `tail` field limits results to the _most recent_ `n` records _for each_ uniq
 Query responses are provided as newline separated JSON records. For example:
 
 ```json
-{"timestamp":"2021-02-24T21:14:33.094407742Z","name":"env.temperature.gen","value":1.8749457256338125,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:34.097759221Z","name":"env.temperature.gen","value":3.4616782879021497,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:35.099309444Z","name":"env.temperature.gen","value":3.935407701067743,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:36.102012155Z","name":"env.temperature.gen","value":0.660707909927028,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:37.104884504Z","name":"env.temperature.gen","value":0.5932408953781276,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-02-24T21:14:33.094407Z","name":"env.temperature.gen","value":1.8749457256338125,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-02-24T21:14:34.097759Z","name":"env.temperature.gen","value":3.4616782879021497,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-02-24T21:14:35.099309Z","name":"env.temperature.gen","value":3.935407701067743,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-02-24T21:14:36.102012Z","name":"env.temperature.gen","value":0.660707909927028,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-02-24T21:14:37.104884Z","name":"env.temperature.gen","value":0.5932408953781276,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
 ```
 
 Each record contains the following fields
@@ -66,12 +66,10 @@ Each record contains the following fields
 
 ## Example Queries
 
-_Warning: The Beehive used in the examples uses a self-signed certificate which is why we curl with the `-k` flag. In the future, this Beehive will use a proper signed certificiate._
-
 The following query will return all measurements with a name starting with `sys` in the last hour.
 
 ```sh
-curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-1h",
     "filter": {
@@ -84,7 +82,7 @@ curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/qu
 The following query will return all environmental related measurements between 10:00 and 12:00 on 2021-01-01.
 
 ```sh
-curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "2021-01-01T10:00:00Z",
     "end": "2021-01-01T12:00:00Z",
@@ -98,7 +96,7 @@ curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/qu
 The following query will find all temperature related measurements from metsense v1.x plugins in the last 24 hours.
 
 ```sh
-curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-24h",
     "filter": {
@@ -112,7 +110,7 @@ curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/qu
 The following query will get the latest uptime measurements from all devices in the last 7 days.
 
 ```sh
-curl -k -H 'Content-Type: application/json' https://sdr.honeyhouse.one/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-7d",
     "tail": 1,
