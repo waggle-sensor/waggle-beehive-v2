@@ -45,6 +45,9 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // and writes the results back to the client.
 func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceError {
 	query, err := parseQuery(r.Body)
+	if err == io.EOF {
+		return &serviceError{err, "error: must provide a request body", http.StatusBadRequest}
+	}
 	if err != nil {
 		return &serviceError{err, err.Error(), http.StatusBadRequest}
 	}
@@ -54,7 +57,7 @@ func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceEr
 
 	results, err := svc.Backend.Query(r.Context(), query)
 	if err != nil {
-		return &serviceError{err, "failed to query backend", http.StatusInternalServerError}
+		return &serviceError{err, "error: failed to query backend", http.StatusInternalServerError}
 	}
 	defer results.Close()
 

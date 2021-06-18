@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -128,5 +129,24 @@ func TestContentDispositionHeader(t *testing.T) {
 
 	if !pattern.MatchString(s) {
 		t.Fatalf("response must proper Content-Disposition header. got %q", s)
+	}
+}
+
+func TestNoPayload(t *testing.T) {
+	svc := &Service{
+		Backend: &DummyBackend{},
+	}
+
+	r := httptest.NewRequest("POST", "/api/v1/query", nil)
+	w := httptest.NewRecorder()
+	svc.ServeHTTP(w, r)
+	resp := w.Result()
+
+	b, err := io.ReadAll(resp.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(b) != "error: must provide a request body\n" {
+		t.Fatalf("missing error message when missing request body")
 	}
 }
