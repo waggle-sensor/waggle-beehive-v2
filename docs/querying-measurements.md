@@ -79,6 +79,19 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 '
 ```
 
+The following query will get all "raw" data from the onboard Linux Industrial IO sensors in the last day.
+
+```sh
+curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+{
+    "start": "-1d",
+    "filter": {
+        "name": "iio.*"
+    }
+}
+'
+```
+
 The following query will return all environmental related measurements between 10:00 and 12:00 on 2021-01-01.
 
 ```sh
