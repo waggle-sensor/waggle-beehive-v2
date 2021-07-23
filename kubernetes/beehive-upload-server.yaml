@@ -63,5 +63,6 @@ spec:
       - name: home-dirs
         hostPath:
           # TODO(sean) make this part of config or figure out a different way to get files out!
-          path: /root/upload-server-home-dirs
+          #path: /root/upload-server-home-dirs
+          path: /media/uploader-disk/beehive_uploader
           type: DirectoryOrCreate
