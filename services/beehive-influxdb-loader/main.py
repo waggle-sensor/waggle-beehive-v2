@@ -8,6 +8,29 @@ import ssl
 import waggle.message as message
 
 
+def assert_type(obj, t):
+    if not isinstance(obj, t):
+        raise TypeError(f"{obj!r} must be {t}")
+
+
+def assert_maxlen(s, n):
+    if len(s) > n:
+        raise ValueError(f"len({s!r}) must be <= {n}")
+
+
+def assert_valid_message(msg):
+    assert_type(msg.name, str)
+    assert_maxlen(msg.name, 64)
+    assert_type(msg.timestamp, int)
+    assert_type(msg.value, (int, float, str))
+    assert_type(msg.meta, dict)
+    for k, v in msg.meta.items():
+        assert_type(k, str)
+        assert_maxlen(k, 64)
+        assert_type(v, str)
+        assert_maxlen(v, 64)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true")
@@ -50,8 +73,14 @@ def main():
             ch.basic_ack(method.delivery_tag)
             logging.warning("failed to parse message")
             return
+        
+        try:
+            assert_valid_message(msg)
+        except Exception:
+            logging.exception("invalid message - dropping message")
+            ch.basic_ack(method.delivery_tag)
+            return
 
-        # TODO santize measurement names / tags / values
         record = {
             "measurement": msg.name,
             "tags": msg.meta,
