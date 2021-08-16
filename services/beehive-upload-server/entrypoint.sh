@@ -5,20 +5,20 @@ fatal() {
     exit 1
 }
 
-if [ -z "${SSH_CA_PUBKEY}" ]; then
-    fatal "path to ca pub key must be defined in SSH_CA_PUBKEY"
+if ! test -e "${SSH_CA_PUBKEY}"; then
+    fatal "Error: CA public key ${SSH_CA_PUBKEY} does not exist!"
 fi
-echo "Using CA public key at ${SSH_CA_PUBKEY}"
+echo "Using CA public key at ${SSH_CA_PUBKEY}."
 
-if [ -z "${SSH_HOST_KEY}" ]; then
-    fatal "path to upload server host key pub key must be defined in SSH_HOST_KEY"
+if ! test -e "${SSH_HOST_KEY}"; then
+    fatal "Error: Upload server host key key ${SSH_HOST_KEY} does not exist!"
 fi
-echo "Using upload server host key at ${SSH_HOST_KEY}"
+echo "Using upload server host key at ${SSH_HOST_KEY}."
 
-if [ -z "${SSH_HOST_CERT}" ]; then
-    fatal "path to upload server signed host key key must be defined in SSH_HOST_CERT"
+if ! test -e "${SSH_HOST_CERT}"; then
+    fatal "Error: Upload server signed host key key ${SSH_HOST_CERT} does not exist!"
 fi
-echo "Using upload server signed host key at ${SSH_HOST_CERT}"
+echo "Using upload server signed host key at ${SSH_HOST_CERT}."
 
 # generate sshd_config from env vars
 cat > /etc/ssh/sshd_config <<EOF
