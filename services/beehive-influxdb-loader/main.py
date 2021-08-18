@@ -29,6 +29,8 @@ def assert_valid_message(msg):
         assert_maxlen(k, 64)
         assert_type(v, str)
         assert_maxlen(v, 64)
+    if "node" not in msg.meta:
+        raise KeyError("message missing node meta field")
 
 
 def main():
@@ -70,14 +72,20 @@ def main():
         try:
             msg = message.load(body)
         except Exception:
+            logging.exception("failed to parse message")
             ch.basic_ack(method.delivery_tag)
-            logging.warning("failed to parse message")
             return
         
         try:
             assert_valid_message(msg)
         except Exception:
-            logging.exception("invalid message - dropping message")
+            logging.exception("dropping invalid message: %s", msg)
+            ch.basic_ack(method.delivery_tag)
+            return
+
+        # check that meta["node"] matches user_id
+        if "node-"+msg.meta["node"] != properties.user_id:
+            logging.info("dropping invalid message: username (%s) doesn't match node meta (%s) - ", msg.meta["node"], properties.user_id)
             ch.basic_ack(method.delivery_tag)
             return
 
