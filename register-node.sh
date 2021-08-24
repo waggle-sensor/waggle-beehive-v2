@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 echo "adding node to rabbitmq"
 ./add-nodes-to-rabbitmq.py "$1" > /dev/null
