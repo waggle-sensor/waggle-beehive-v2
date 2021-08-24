@@ -24,15 +24,16 @@ func main() {
 
 	// TODO figure out reasonable timeout on potentially large result sets
 	client.Options().HTTPClient().Timeout = *influxdbTimeout
-	svc := &Service{
+
+	http.Handle("/api/v1/query", &Service{
 		Backend: &InfluxBackend{
 			Client: client,
 			Bucket: *influxdbBucket,
 		},
-	}
+	})
 
 	log.Printf("service listening on %s", *addr)
-	if err := http.ListenAndServe(*addr, svc); err != nil {
+	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal(err)
 	}
 }

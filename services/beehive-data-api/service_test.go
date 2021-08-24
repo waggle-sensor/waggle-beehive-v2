@@ -53,7 +53,7 @@ func TestQueryResponse(t *testing.T) {
 		"start": "-4h"
 	}`)
 
-	r := httptest.NewRequest("POST", "/api/v1/query", body)
+	r := httptest.NewRequest("POST", "/", body)
 	w := httptest.NewRecorder()
 	svc.ServeHTTP(w, r)
 	resp := w.Result()
@@ -71,7 +71,7 @@ func TestQueryResponse(t *testing.T) {
 		}
 		b1, _ := json.Marshal(record)
 		b2 := scanner.Bytes()
-		if bytes.Compare(b1, b2) != 0 {
+		if !bytes.Equal(b1, b2) {
 			t.Fatalf("records don't match\nexpect: %s\noutput: %s", b1, b2)
 		}
 	}
@@ -89,7 +89,7 @@ func TestQueryDisallowedField(t *testing.T) {
 		}
 	}`)
 
-	r := httptest.NewRequest("POST", "/api/v1/query", body)
+	r := httptest.NewRequest("POST", "/", body)
 	w := httptest.NewRecorder()
 	svc.ServeHTTP(w, r)
 	resp := w.Result()
@@ -118,7 +118,7 @@ func TestContentDispositionHeader(t *testing.T) {
 		"start": "-4h"
 	}`)
 
-	r := httptest.NewRequest("POST", "/api/v1/query", body)
+	r := httptest.NewRequest("POST", "/", body)
 	w := httptest.NewRecorder()
 	svc.ServeHTTP(w, r)
 	resp := w.Result()
@@ -137,7 +137,7 @@ func TestNoPayload(t *testing.T) {
 		Backend: &DummyBackend{},
 	}
 
-	r := httptest.NewRequest("POST", "/api/v1/query", nil)
+	r := httptest.NewRequest("POST", "/", nil)
 	w := httptest.NewRecorder()
 	svc.ServeHTTP(w, r)
 	resp := w.Result()

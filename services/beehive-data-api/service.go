@@ -14,42 +14,17 @@ type Service struct {
 	Backend Backend
 }
 
-type serviceError struct {
-	Error   error
-	Message string
-	Code    int
-}
-
-var serviceRoutes = map[string]func(*Service, http.ResponseWriter, *http.Request) *serviceError{
-	"/api/v1/query": serveQuery,
-}
-
-// ServeHTTP dispatches an HTTP request to the right handler.
-func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	handler, ok := serviceRoutes[r.URL.Path]
-
-	if !ok {
-		http.NotFound(w, r)
-		return
-	}
-
-	if err := handler(svc, w, r); err != nil {
-		log.Printf("error %q %v", r.URL.Path, err.Error)
-		http.Error(w, err.Message, err.Code)
-	} else {
-		log.Printf("served %q", r.URL.Path)
-	}
-}
-
-// serveQuery parses a query request, translates and forwards it to InfluxDB
+// ServeHTTP parses a query request, translates and forwards it to InfluxDB
 // and writes the results back to the client.
-func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceError {
+func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	query, err := parseQuery(r.Body)
 	if err == io.EOF {
-		return &serviceError{err, "error: must provide a request body", http.StatusBadRequest}
+		http.Error(w, "error: must provide a request body", http.StatusBadRequest)
+		return
 	}
 	if err != nil {
-		return &serviceError{err, err.Error(), http.StatusBadRequest}
+		http.Error(w, fmt.Sprintf("error: failed to parse query: %s", err.Error()), http.StatusBadRequest)
+		return
 	}
 
 	queryStart := time.Now()
@@ -57,7 +32,8 @@ func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceEr
 
 	results, err := svc.Backend.Query(r.Context(), query)
 	if err != nil {
-		return &serviceError{err, "error: failed to query backend", http.StatusInternalServerError}
+		http.Error(w, "error: failed to query backend", http.StatusInternalServerError)
+		return
 	}
 	defer results.Close()
 
@@ -78,13 +54,11 @@ func serveQuery(svc *Service, w http.ResponseWriter, r *http.Request) *serviceEr
 
 	queryDuration := time.Since(queryStart)
 	log.Printf("served %d records in %s", queryCount, queryDuration)
-	return nil
 }
 
 func parseQuery(r io.Reader) (*Query, error) {
 	decoder := json.NewDecoder(r)
 	decoder.DisallowUnknownFields()
-
 	query := &Query{}
 	if err := decoder.Decode(query); err != nil {
 		return nil, err
