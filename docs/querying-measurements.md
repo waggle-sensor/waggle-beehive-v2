@@ -49,11 +49,16 @@ The `tail` field limits results to the _most recent_ `n` records _for each_ uniq
 Query responses are provided as newline separated JSON records. For example:
 
 ```json
-{"timestamp":"2021-02-24T21:14:33.094407Z","name":"env.temperature.gen","value":1.8749457256338125,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:34.097759Z","name":"env.temperature.gen","value":3.4616782879021497,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:35.099309Z","name":"env.temperature.gen","value":3.935407701067743,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:36.102012Z","name":"env.temperature.gen","value":0.660707909927028,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
-{"timestamp":"2021-02-24T21:14:37.104884Z","name":"env.temperature.gen","value":0.5932408953781276,"meta":{"node":"0000000000000001","plugin":"metsense:1.0.2"}}
+{"timestamp":"2021-09-01T18:31:51.944475139Z","name":"env.temperature","value":51.18,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:32:21.994670762Z","name":"env.temperature","value":51.11,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:32:52.040360967Z","name":"env.temperature","value":51.03,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:33:22.084612518Z","name":"env.temperature","value":50.93,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:33:52.128641281Z","name":"env.temperature","value":50.87,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:34:22.172853123Z","name":"env.temperature","value":50.79,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:34:52.224589881Z","name":"env.temperature","value":50.69,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:35:22.272575797Z","name":"env.temperature","value":50.62,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:35:52.321517702Z","name":"env.temperature","value":50.56,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-01T18:36:22.340393743Z","name":"env.temperature","value":50.51,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
 ```
 
 Each record contains the following fields
@@ -66,27 +71,27 @@ Each record contains the following fields
 
 ## Example Queries
 
-The following query will return all measurements with a name starting with `sys` in the last hour.
+The following query will get all environment data in the last hour.
 
 ```sh
 curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-1h",
     "filter": {
-        "name": "sys.*"
+        "name": "env.*"
     }
 }
 '
 ```
 
-The following query will get all "raw" data from the onboard Linux Industrial IO sensors in the last day.
+The following query will return all measurements with a name starting with `sys` in the five minutes.
 
 ```sh
 curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
-    "start": "-1d",
+    "start": "-5m",
     "filter": {
-        "name": "iio.*"
+        "name": "sys.*"
     }
 }
 '
@@ -106,26 +111,25 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 '
 ```
 
-The following query will find all temperature related measurements from metsense v1.x plugins in the last 24 hours.
+The following query will find all measurements from all IIO plugins v0.2.x in the last 24 hours.
 
 ```sh
 curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-24h",
     "filter": {
-        "plugin": "metsense:1.*",
-        "name": "env.temperature.*"
+        "plugin": "plugin-iio:0.2.*"
     }
 }
 '
 ```
 
-The following query will get the latest uptime measurements from all devices in the last 7 days.
+The following query will get the latest uptime measurements from all devices in the last 3 days.
 
 ```sh
 curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
 {
-    "start": "-7d",
+    "start": "-3d",
     "tail": 1,
     "filter": {
         "name": "sys.uptime"
