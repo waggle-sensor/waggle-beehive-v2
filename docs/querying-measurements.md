@@ -74,7 +74,7 @@ Each record contains the following fields
 The following query will get all environment data in the last hour.
 
 ```sh
-curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-1h",
     "filter": {
@@ -87,7 +87,7 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 The following query will return all measurements with a name starting with `sys` in the five minutes.
 
 ```sh
-curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-5m",
     "filter": {
@@ -100,7 +100,7 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 The following query will return all environmental related measurements between 10:00 and 12:00 on 2021-01-01.
 
 ```sh
-curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
 {
     "start": "2021-01-01T10:00:00Z",
     "end": "2021-01-01T12:00:00Z",
@@ -114,7 +114,7 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 The following query will find all measurements from all IIO plugins v0.2.x in the last 24 hours.
 
 ```sh
-curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-24h",
     "filter": {
@@ -127,7 +127,7 @@ curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/qu
 The following query will get the latest uptime measurements from all devices in the last 3 days.
 
 ```sh
-curl -H 'Content-Type: application/json' https://sdr.sagecontinuum.org/api/v1/query -d '
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
 {
     "start": "-3d",
     "tail": 1,
