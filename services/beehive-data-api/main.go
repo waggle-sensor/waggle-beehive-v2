@@ -28,9 +28,19 @@ func main() {
 	http.Handle("/api/v1/query", &Service{
 		Backend: &InfluxBackend{
 			Client: client,
+			Org:    "waggle",
 			Bucket: *influxdbBucket,
 		},
 	})
+
+	// NOTE optional endpoint to expose testing bucket
+	// http.Handle("/api/testing/query", &Service{
+	// 	Backend: &InfluxBackend{
+	// 		Client: client,
+	// 		Org:    "waggle",
+	// 		Bucket: "testing",
+	// 	},
+	// })
 
 	log.Printf("service listening on %s", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {

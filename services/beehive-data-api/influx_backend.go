@@ -14,6 +14,7 @@ import (
 // InfluxBackend implements a backend to InfluxDB.
 type InfluxBackend struct {
 	Client influxdb2.Client
+	Org    string
 	Bucket string
 }
 
@@ -24,7 +25,7 @@ func (backend *InfluxBackend) Query(ctx context.Context, query *Query) (Results,
 		return nil, err
 	}
 
-	queryAPI := backend.Client.QueryAPI(backend.Bucket)
+	queryAPI := backend.Client.QueryAPI(backend.Org)
 
 	results, err := queryAPI.Query(ctx, fluxQuery)
 	if err != nil {
