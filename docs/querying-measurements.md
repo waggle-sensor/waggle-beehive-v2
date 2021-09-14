@@ -49,16 +49,13 @@ The `tail` field limits results to the _most recent_ `n` records _for each_ uniq
 Query responses are provided as newline separated JSON records. For example:
 
 ```json
-{"timestamp":"2021-09-01T18:31:51.944475139Z","name":"env.temperature","value":51.18,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:32:21.994670762Z","name":"env.temperature","value":51.11,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:32:52.040360967Z","name":"env.temperature","value":51.03,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:33:22.084612518Z","name":"env.temperature","value":50.93,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:33:52.128641281Z","name":"env.temperature","value":50.87,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:34:22.172853123Z","name":"env.temperature","value":50.79,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:34:52.224589881Z","name":"env.temperature","value":50.69,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:35:22.272575797Z","name":"env.temperature","value":50.62,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:35:52.321517702Z","name":"env.temperature","value":50.56,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
-{"timestamp":"2021-09-01T18:36:22.340393743Z","name":"env.temperature","value":50.51,"meta":{"node":"000048b02d05a0a4","plugin":"plugin-iio:0.2.0","sensor":"bme280"}}
+{"timestamp":"2021-09-14T19:09:38.329031006Z","name":"env.temperature","value":46.91,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+{"timestamp":"2021-09-14T19:10:08.374442041Z","name":"env.temperature","value":46.86,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+{"timestamp":"2021-09-14T19:10:38.431108286Z","name":"env.temperature","value":46.83,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+{"timestamp":"2021-09-14T19:11:08.49221237Z","name":"env.temperature","value":46.81,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+{"timestamp":"2021-09-14T19:11:38.525777857Z","name":"env.temperature","value":46.79,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+{"timestamp":"2021-09-14T19:12:08.575869104Z","name":"env.temperature","value":46.78,"meta":{"host":"000048b02d15bc87.ws-nxcore","node":"000048b02d15bc87","plugin":"plugin-iio:0.3.0","sensor":"bme280","vsn":"W019"}}
+...
 ```
 
 Each record contains the following fields
@@ -68,6 +65,7 @@ Each record contains the following fields
 * `value`: Value of measurement.
 * `meta`: Metadata fields about measurement.
 
+_Note: Records are only ordered by timestamp **within each group of unique name and metadata**. This should generally not be an issue as many aggregations and visualizations process each group independently._
 
 ## Example Queries
 
@@ -79,6 +77,33 @@ curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/q
     "start": "-1h",
     "filter": {
         "name": "env.*"
+    }
+}
+'
+```
+
+If we wanted look at just temperatures values, we could modify our query to be:
+
+```sh
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
+{
+    "start": "-1h",
+    "filter": {
+        "name": "env.temperature"
+    }
+}
+'
+```
+
+Finally, if we wanted to drill down to the specific node `W019`, we can do:
+
+```sh
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
+{
+    "start": "-1h",
+    "filter": {
+        "name": "env.temperature",
+        "vsn": "W019"
     }
 }
 '
