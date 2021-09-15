@@ -67,9 +67,9 @@ Each record contains the following fields
 
 _Note: Records are only ordered by timestamp **within each group of unique name and metadata**. This should generally not be an issue as many aggregations and visualizations process each group independently._
 
-## Example Queries
+## Example Query
 
-The following query will get all environment data in the last hour.
+We'll start by doing a query to get all environment data in the last hour.
 
 ```sh
 curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
@@ -82,7 +82,7 @@ curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/q
 '
 ```
 
-If we wanted look at just temperatures values, we could modify our query to be:
+If we wanted look specifically at temperature values, we can update our `name` filter to be `env.temperature`:
 
 ```sh
 curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
@@ -95,7 +95,7 @@ curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/q
 '
 ```
 
-Finally, if we wanted to drill down to the specific node `W019`, we can do:
+Next, if we want to drill down to the specific node `W019`, we can add filter for the `vsn` field:
 
 ```sh
 curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
@@ -108,6 +108,23 @@ curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/q
 }
 '
 ```
+
+Finally, if we want to get this data for a specific time range, we can provide absolute `start` and `end` timestamps:
+
+```sh
+curl -H 'Content-Type: application/json' https://data.sagecontinuum.org/api/v1/query -d '
+{
+    "start": "2021-09-14T00:00:00Z",
+    "end": "2021-09-15T00:00:00Z",
+    "filter": {
+        "name": "env.temperature",
+        "vsn": "W019"
+    }
+}
+'
+```
+
+## More Examples
 
 The following query will return all measurements with a name starting with `sys` in the five minutes.
 
