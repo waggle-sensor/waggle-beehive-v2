@@ -54,7 +54,7 @@ func (svc *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queryDuration := time.Since(queryStart)
-	log.Printf("served %d records in %s", queryCount, queryDuration)
+	log.Printf("served %d records in %s - %f records/s", queryCount, queryDuration, float64(queryCount)/queryDuration.Seconds())
 }
 
 func parseQuery(r io.Reader) (*Query, error) {
