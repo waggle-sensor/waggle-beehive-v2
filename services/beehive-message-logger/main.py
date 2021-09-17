@@ -5,7 +5,7 @@ import pika.credentials
 import json
 import sys
 import ssl
-import waggle.message as message
+import wagglemsg as message
 
 
 def message_handler(ch, method, properties, body):

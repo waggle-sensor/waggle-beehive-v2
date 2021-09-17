@@ -1,8 +1,7 @@
 import argparse
 from os import getenv
 import pika
-import json
-import waggle.message as message
+import wagglemsg as message
 import time
 import random
 import ssl

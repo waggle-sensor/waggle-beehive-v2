@@ -5,7 +5,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS, WritePrecision
 from os import getenv
 import logging
 import ssl
-import waggle.message as message
+import wagglemsg as message
 
 
 def assert_type(obj, t):
