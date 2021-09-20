@@ -98,7 +98,17 @@ def main():
             "time": msg.timestamp,
         }
 
-        writer.write(bucket=args.influxdb_bucket, org=args.influxdb_org, record=record, write_precision=WritePrecision.NS)
+        # TODO(sean) clean this error handling up
+        # NOTE(sean) example of the kind of errors influxdb client can throw
+        # HTTP response headers: HTTPHeaderDict({'Content-Type': 'application/json; charset=utf-8', 'X-Platform-Error-Code': 'internal error', 'Date': 'Mon, 20 Sep 2021 20:44:21 GMT', 'Content-Length': '227'})
+        # HTTP response body: {"code":"internal error","message":"unexpected error writing points to database: partial write: field type conflict: input field \"value\" on measurement \"sys.thermal\" is type integer, already exists as type float dropped=1"}
+        try:
+            writer.write(bucket=args.influxdb_bucket, org=args.influxdb_org, record=record, write_precision=WritePrecision.NS)
+        except influxdb_client.rest.ApiException:
+            logging.exception("error when writing point: %s", msg)
+            ch.basic_ack(method.delivery_tag)
+            return
+
         ch.basic_ack(method.delivery_tag)
         logging.debug("proccessed message %s", msg)
 
