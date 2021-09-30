@@ -1,15 +1,17 @@
 #!/bin/bash
+set -e
 
 rmqctl() {
-    kubectl exec svc/beehive-rabbitmq -- rabbitmqctl "$@"
+    kubectl exec svc/beehive-rabbitmq -n ${namespace} -- rabbitmqctl "$@"
 }
 
-secretname="$1"
-username="$2"
-confperm="$3"
-writeperm="$4"
-readperm="$5"
-tags="$6"
+namespace="$1"
+secretname="$2"
+username="$3"
+confperm="$4"
+writeperm="$5"
+readperm="$6"
+tags="$7"
 password="$(openssl rand -hex 20)"
 
 echo "updating kubernetes config ${secretname}..."
@@ -18,6 +20,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: ${secretname}
+  namespace: ${namespace}
 type: kubernetes.io/basic-auth
 stringData:
   username: ${username}
