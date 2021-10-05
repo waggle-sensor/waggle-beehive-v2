@@ -12,11 +12,11 @@ spec:
   type: LoadBalancer
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: beehive-upload-server
 spec:
-  serviceName: beehive-upload-server
+  #serviceName: beehive-upload-server
   selector:
     matchLabels:
       app: beehive-upload-server
@@ -61,8 +61,12 @@ spec:
           secretName: beehive-upload-server-ssh-host-key
           defaultMode: 0600
       - name: home-dirs
-        hostPath:
-          # TODO(sean) make this part of config or figure out a different way to get files out!
-          #path: /root/upload-server-home-dirs
-          path: /media/uploader-disk/beehive_uploader
-          type: DirectoryOrCreate
+        persistentVolumeClaim:
+          claimName: home-dirs
+      # Kustomize cannot "easily" overwrite this, thus I commented home-dirs out.
+      #- name: home-dirs
+      #  hostPath:
+      #    # TODO(sean) make this part of config or figure out a different way to get files out!
+      #    #path: /root/upload-server-home-dirs
+      #    path: /media/uploader-disk/beehive_uploader
+      #    type: DirectoryOrCreate
