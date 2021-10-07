@@ -63,10 +63,4 @@ spec:
       - name: home-dirs
         persistentVolumeClaim:
           claimName: home-dirs
-      # Kustomize cannot "easily" overwrite this, thus I commented home-dirs out.
-      #- name: home-dirs
-      #  hostPath:
-      #    # TODO(sean) make this part of config or figure out a different way to get files out!
-      #    #path: /root/upload-server-home-dirs
-      #    path: /media/uploader-disk/beehive_uploader
-      #    type: DirectoryOrCreate
+
