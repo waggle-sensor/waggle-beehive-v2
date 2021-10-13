@@ -33,6 +33,12 @@ def assert_valid_message(msg):
         raise KeyError("message missing node meta field")
 
 
+def coerce_value(x):
+    if isinstance(x, int):
+        return float(x)
+    return x
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", action="store_true")
@@ -93,7 +99,7 @@ def main():
             "measurement": msg.name,
             "tags": msg.meta,
             "fields": {
-                "value": msg.value,
+                "value": coerce_value(msg.value),
             },
             "time": msg.timestamp,
         }

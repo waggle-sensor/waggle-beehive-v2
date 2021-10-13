@@ -1,5 +1,5 @@
 import unittest
-from main import assert_type, assert_maxlen, assert_valid_message, assert_valid_message
+from main import assert_type, assert_maxlen, coerce_value
 
 class TestValidators(unittest.TestCase):
 
@@ -16,6 +16,11 @@ class TestValidators(unittest.TestCase):
         assert_maxlen("123456789", 10)
         with self.assertRaises(ValueError):
             assert_maxlen("123456789", 8)
+
+    def test_coerce_value(self):
+        self.assertIsInstance(coerce_value(0), float)
+        self.assertIsInstance(coerce_value(0.12), float)
+        self.assertIsInstance(coerce_value("hello"), str)
 
 if __name__ == "__main__":
     unittest.main()
