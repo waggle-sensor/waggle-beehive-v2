@@ -65,14 +65,15 @@ EOF
 
 # setup users and directories for existing items in /home
 echo "Initializing existing users."
-for username in $(ls /home); do
+for username in $(ls /home/ | grep "^node"); do
     echo "Found $username."
     adduser -D -g "" "$username"
     passwd -u "$username"
     chown -R "$username:$username" "/home/$username"
 done
 
-for username in $(curl -s https://api.sagecontinuum.org/api/state | jq -r .data[].id | awk '{print tolower($0)}') ; do
+for node_id in $(curl -s https://api.sagecontinuum.org/api/state | jq -r .data[].id | awk '{print tolower($0)}') ; do
+    username="node-${node_id}"
     if [ -e "/home/$username" ] ; then
         echo "/home/$username already exists"
         continue
