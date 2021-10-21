@@ -12,7 +12,7 @@ spec:
     type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
     labels:
         app: beehive-influxdb
@@ -22,7 +22,6 @@ spec:
     selector:
         matchLabels:
             app: beehive-influxdb
-    serviceName: beehive-influxdb
     template:
         metadata:
             labels:
@@ -37,12 +36,7 @@ spec:
                 volumeMounts:
                   - mountPath: /root/.influxdbv2
                     name: data
-    volumeClaimTemplates:
-      - metadata:
-            name: data
-        spec:
-            accessModes:
-              - ReadWriteOnce
-            resources:
-                requests:
-                    storage: 1G
+            volumes:
+                - name: data
+                  persistentVolumeClaim:
+                    claimName: influxdb-data

@@ -76,11 +76,11 @@ data:
     }
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: beehive-rabbitmq
 spec:
-  serviceName: beehive-rabbitmq
+  #serviceName: beehive-rabbitmq
   selector:
     matchLabels:
       app: beehive-rabbitmq
@@ -129,11 +129,7 @@ spec:
         - name: tls
           secret:
             secretName: beehive-rabbitmq-tls-secret
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
+        - name: data
+          persistentVolumeClaim:
+            claimName: rabbitmq-data
+
