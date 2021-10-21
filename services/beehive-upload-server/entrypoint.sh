@@ -72,4 +72,17 @@ for username in $(ls /home); do
     chown -R "$username:$username" "/home/$username"
 done
 
+for username in $(curl -s https://api.sagecontinuum.org/api/state | jq -r .data[].id | awk '{print tolower($0)}') ; do
+    if [ -e "/home/$username" ] ; then
+        echo "/home/$username already exists"
+        continue
+    fi
+
+    echo "Adding $username."
+    adduser -D -g "" "$username"
+    passwd -u "$username"
+    chown -R "$username:$username" "/home/$username"
+done
+
+
 exec /usr/sbin/sshd -D -e
