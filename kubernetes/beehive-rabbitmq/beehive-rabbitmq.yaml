@@ -52,7 +52,9 @@ data:
     load_definitions = /etc/rabbitmq/definitions.json
   definitions.json: |
     {
-        "users": [],
+        "users": [
+          {"name":"beehive-master", "tags": "administrator"}
+        ],
         "vhosts": [
             {"name": "/"}
         ],
