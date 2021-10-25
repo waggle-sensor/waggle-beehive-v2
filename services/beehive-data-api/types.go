@@ -20,6 +20,7 @@ type Results interface {
 
 // Query holds an SDR query body.
 type Query struct {
+	Bucket *string           `json:"bucket,omitempty"`
 	Start  string            `json:"start,omitempty"`
 	End    string            `json:"end,omitempty"`
 	Tail   *int              `json:"tail,omitempty"`

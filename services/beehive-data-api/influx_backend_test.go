@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"testing"
@@ -10,14 +11,19 @@ func init() {
 	log.SetOutput(io.Discard)
 }
 
+func strptr(s string) *string {
+	return &s
+}
+
 func intptr(x int) *int {
 	return &x
 }
 
 func TestBuildFluxQuery(t *testing.T) {
 	testcases := []struct {
-		Query  *Query
-		Expect string
+		Query      *Query
+		Expect     string
+		ShouldFail bool
 	}{
 		// this case checks for start in time range
 		{
@@ -26,13 +32,33 @@ func TestBuildFluxQuery(t *testing.T) {
 			},
 			Expect: `from(bucket:"mybucket") |> range(start:-4h)`,
 		},
+		// this case checks for bucket
+		{
+			Query: &Query{
+				Bucket: strptr("downsampled"),
+				Start:  "-4h",
+				Tail:   intptr(3),
+			},
+			Expect: `from(bucket:"downsampled") |> range(start:-4h) |> tail(n:3)`,
+		},
+		// check invalid
+		{
+			Query: &Query{
+				Bucket: strptr("_badbucket"),
+				Start:  "-4h",
+				Tail:   intptr(3),
+			},
+			Expect:     ``,
+			ShouldFail: true,
+		},
 		// this case checks for start and end in time range
 		{
 			Query: &Query{
 				Start: "-4h",
 				End:   "-2h",
+				Tail:  intptr(3),
 			},
-			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h)`,
+			Expect: `from(bucket:"mybucket") |> range(start:-4h,stop:-2h) |> tail(n:3)`,
 		},
 		// this case checks for exact match filter
 		{
@@ -69,12 +95,17 @@ func TestBuildFluxQuery(t *testing.T) {
 	for _, c := range testcases {
 		s, err := buildFluxQuery("mybucket", c.Query)
 
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if s != c.Expect {
-			t.Fatalf("flux query expected:\nexpect: %s\noutput: %s", s, c.Expect)
+		if c.ShouldFail {
+			if err == nil {
+				t.Fatal(fmt.Printf("expected error"))
+			}
+		} else {
+			if err != nil {
+				t.Fatal(err)
+			}
+			if s != c.Expect {
+				t.Fatalf("flux query expected:\nexpect: %s\noutput: %s", s, c.Expect)
+			}
 		}
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -24,6 +25,7 @@ func (backend *InfluxBackend) Query(ctx context.Context, query *Query) (Results,
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("query %v", fluxQuery)
 
 	queryAPI := backend.Client.QueryAPI(backend.Org)
 
@@ -57,13 +59,8 @@ func (r *influxResults) Next() bool {
 	if !r.results.Next() {
 		return false
 	}
-
 	r.record, r.err = convertToAPIRecord(r.results.Record())
-	if r.err != nil {
-		return false
-	}
-
-	return true
+	return r.err == nil
 }
 
 func convertToAPIRecord(rec *influxdb2query.FluxRecord) (*Record, error) {
@@ -107,6 +104,11 @@ func buildMetaFromRecord(rec *influxdb2query.FluxRecord) map[string]string {
 
 // buildFluxQuery builds a Flux query string for InfluxDB from a bucket name and Query
 func buildFluxQuery(bucket string, query *Query) (string, error) {
+	// override bucket if part of query
+	if query.Bucket != nil {
+		bucket = *query.Bucket
+	}
+
 	// start query out with data bucket
 	parts := []string{
 		fmt.Sprintf(`from(bucket:"%s")`, bucket),
