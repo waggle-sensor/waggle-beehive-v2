@@ -1,4 +1,11 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: beehive-rabbitmq-env
+data:
+  sync_url: http://beehive-nodes-service/sync
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: beehive-rabbitmq
@@ -10,6 +17,18 @@ spec:
       port: 49191
       targetPort: 5671
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beehive-rabbitmq-management
+spec:
+  selector:
+    app: beehive-rabbitmq
+  ports:
+    - protocol: TCP
+      port: 15672
+      targetPort: 15672
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -31,6 +50,7 @@ data:
     ssl_options.fail_if_no_peer_cert = false
     ssl_cert_login_from              = common_name
 
+    management.tcp.port = 15672
     # use ssl for management console and api
     management.ssl.port       = 15671
     management.ssl.cacertfile = /etc/ca/cacert.pem
@@ -53,7 +73,7 @@ data:
   definitions.json: |
     {
         "users": [
-          {"name":"beehive-master", "tags": "administrator"}
+          {"name":"beehive-master","password":"beehive-master", "tags": "administrator"}
         ],
         "vhosts": [
             {"name": "/"}
@@ -82,7 +102,6 @@ kind: Deployment
 metadata:
   name: beehive-rabbitmq
 spec:
-  #serviceName: beehive-rabbitmq
   selector:
     matchLabels:
       app: beehive-rabbitmq
@@ -92,6 +111,12 @@ spec:
         app: beehive-rabbitmq
     spec:
       containers:
+      - name: sidecar
+        image: busybox
+        command: ["sh", "-c", "while [ true ] ; do until wget ${sync_url} -O - -q ; do echo could not reach ${sync_url} ... ; sleep 3s ; done ; echo next round in 30 minutes... ; sleep 30m ; done"]
+        envFrom:
+          - configMapRef:
+              name: beehive-rabbitmq-env
       - name: beehive-rabbitmq
         image: rabbitmq:3.8.11-management-alpine
         volumeMounts:
@@ -107,8 +132,9 @@ spec:
           - name: data
             mountPath: /var/lib/rabbitmq
         ports:
-        - containerPort: 5671
+        - containerPort: 5672
         - containerPort: 15671
+        - containerPort: 15672
         livenessProbe:
           exec:
             command: ["/bin/sh", "-ec", "rabbitmq-diagnostics -q ping"]
