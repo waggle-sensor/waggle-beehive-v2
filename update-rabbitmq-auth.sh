@@ -2,7 +2,7 @@
 set -e
 
 rmqctl() {
-    kubectl exec svc/beehive-rabbitmq -n ${rmq_namespace} -- rabbitmqctl "$@"
+    kubectl exec svc/beehive-rabbitmq -c beehive-rabbitmq -n ${rmq_namespace} -- rabbitmqctl "$@"
 }
 
 secret_namespace="$1"
