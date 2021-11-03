@@ -1,7 +1,10 @@
 
 # docker build -t waggle/beehive-upload-server .
 
-#FROM alpine:3.12
+# testing:
+# docker build -t waggle/beehive-upload-server . && docker rm -f upload-server && docker run -d --name upload-server -p 8080:80  waggle/beehive-upload-server
+# curl -X POST localhost:8080/user/1234567890abcdff
+
 FROM golang:1.17-alpine
 RUN apk add --no-cache openssh-server rsync curl jq supervisor
 RUN mkdir -p /run/sshd
@@ -16,6 +19,4 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-#CMD [ "/entrypoint.sh" ]
-#CMD ["/go/bin/user-service"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
