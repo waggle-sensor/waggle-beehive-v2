@@ -11,12 +11,24 @@ spec:
       targetPort: 22
   type: LoadBalancer
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: beehive-upload-server-api
+spec:
+  selector:
+    app: beehive-upload-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: beehive-upload-server
 spec:
-  #serviceName: beehive-upload-server
   selector:
     matchLabels:
       app: beehive-upload-server
@@ -38,6 +50,8 @@ spec:
         ports:
         - name: ssh
           containerPort: 22
+        - name: api
+          containerPort: 80
         volumeMounts:
         - name: ssh-ca-key
           mountPath: /etc/ca
