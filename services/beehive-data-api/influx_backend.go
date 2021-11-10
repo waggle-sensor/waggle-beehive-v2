@@ -109,6 +109,11 @@ func buildFluxQuery(bucket string, query *Query) (string, error) {
 		bucket = *query.Bucket
 	}
 
+	// we assume buckets starting with _ are private
+	if strings.HasPrefix(bucket, "_") {
+		return "", fmt.Errorf("not authorized to access bucket %q", bucket)
+	}
+
 	// start query out with data bucket
 	parts := []string{
 		fmt.Sprintf(`from(bucket:"%s")`, bucket),
