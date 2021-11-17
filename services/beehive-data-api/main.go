@@ -25,6 +25,9 @@ func main() {
 	// TODO figure out reasonable timeout on potentially large result sets
 	client.Options().HTTPClient().Timeout = *influxdbTimeout
 
+	// NOTE temporarily redirecting to sage docs. can change to something better later.
+	http.Handle("/", http.RedirectHandler("https://docs.sagecontinuum.org/docs/tutorials/accessing-data", http.StatusTemporaryRedirect))
+
 	http.Handle("/api/v1/query", &Service{
 		Backend: &InfluxBackend{
 			Client: client,
