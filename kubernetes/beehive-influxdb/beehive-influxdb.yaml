@@ -1,42 +1,50 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: beehive-influxdb
+  name: beehive-influxdb
 spec:
-    ports:
-      - name: beehive-influxdb
-        port: 8086
-        targetPort: 8086
-    selector:
-        app: beehive-influxdb
-    type: ClusterIP
+  ports:
+    - name: beehive-influxdb
+      port: 8086
+      targetPort: 8086
+  selector:
+    app: beehive-influxdb
+  type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    labels:
-        app: beehive-influxdb
-    name: beehive-influxdb
+  labels:
+    app: beehive-influxdb
+  name: beehive-influxdb
 spec:
-    replicas: 1
-    selector:
-        matchLabels:
-            app: beehive-influxdb
-    template:
-        metadata:
-            labels:
-                app: beehive-influxdb
-        spec:
-            containers:
-              - image: quay.io/influxdb/influxdb:v2.0.3
-                name: beehive-influxdb
-                ports:
-                  - containerPort: 8086
-                    name: influxdb
-                volumeMounts:
-                  - mountPath: /root/.influxdbv2
-                    name: data
-            volumes:
-                - name: data
-                  persistentVolumeClaim:
-                    claimName: influxdb-data
+  replicas: 1
+  selector:
+    matchLabels:
+      app: beehive-influxdb
+  template:
+    metadata:
+      labels:
+        app: beehive-influxdb
+    spec:
+      containers:
+        - image: quay.io/influxdb/influxdb:v2.0.3
+          name: beehive-influxdb
+          ports:
+            - containerPort: 8086
+              name: influxdb
+          volumeMounts:
+            - mountPath: /root/.influxdbv2
+              name: data
+          livenessProbe:
+            exec:
+              command:
+                - "influx"
+                - "query"
+                - 'from(bucket: "_monitoring") |> range(start: -10s) |> count()'
+            initialDelaySeconds: 60
+            periodSeconds: 60
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: influxdb-data
