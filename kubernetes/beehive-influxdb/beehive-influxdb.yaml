@@ -36,6 +36,8 @@ spec:
           volumeMounts:
             - mountPath: /root/.influxdbv2
               name: data
+            - mountPath: /backup
+              name: backup-volume
           livenessProbe:
             exec:
               command:
@@ -48,3 +50,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: influxdb-data
+        # scratch space used to write backup files before moving
+        - name: backup-volume
+          emptyDir: {}
