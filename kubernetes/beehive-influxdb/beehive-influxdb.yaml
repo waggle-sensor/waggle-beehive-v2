@@ -37,7 +37,14 @@ spec:
             - mountPath: /root/.influxdbv2
               name: data
             - mountPath: /backup
-              name: backup-volume
+              name: backup
+          resources:
+            limits:
+              cpu: 16000m
+              memory: 16Gi
+            requests:
+              cpu: 2000m
+              memory: 2Gi
           livenessProbe:
             exec:
               command:
@@ -50,6 +57,6 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: influxdb-data
-        # scratch space used to write backup files before moving
-        - name: backup-volume
-          emptyDir: {}
+        - name: backup
+          persistentVolumeClaim:
+            claimName: influxdb-backup
