@@ -33,6 +33,13 @@ spec:
           ports:
             - containerPort: 8086
               name: influxdb
+          env:
+            - name: "INFLUXD_BOLT_PATH"
+              value: "/var/lib/influxdb2/influxd.bolt"
+            - name: "INFLUXD_ENGINE_PATH"
+              value: "/var/lib/influxdb2/engine"
+            - name: "INFLUX_CONFIGS_PATH"
+              value: "/var/lib/influxdb2/configs"
           volumeMounts:
             - mountPath: "/var/lib/influxdb2"
               name: data
