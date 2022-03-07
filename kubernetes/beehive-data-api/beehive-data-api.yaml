@@ -40,3 +40,10 @@ spec:
                 secretKeyRef:
                   name: beehive-data-api-influxdb-token
                   key: token
+          resources:
+            limits:
+              cpu: 8000m
+              memory: 256Mi
+            requests:
+              cpu: 4000m
+              memory: 128Mi
