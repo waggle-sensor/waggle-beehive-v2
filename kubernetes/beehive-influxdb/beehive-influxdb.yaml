@@ -41,10 +41,10 @@ spec:
           resources:
             limits:
               cpu: 16000m
-              memory: 16Gi
+              memory: 32Gi
             requests:
-              cpu: 2000m
-              memory: 2Gi
+              cpu: 8000m
+              memory: 8Gi
           livenessProbe:
             exec:
               command:
