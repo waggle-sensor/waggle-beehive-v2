@@ -28,15 +28,15 @@ spec:
         app: beehive-influxdb
     spec:
       containers:
-        - image: quay.io/influxdb/influxdb:v2.0.3
+        - image: influxdb:2.1.1
           name: beehive-influxdb
           ports:
             - containerPort: 8086
               name: influxdb
           volumeMounts:
-            - mountPath: /root/.influxdbv2
+            - mountPath: "/var/lib/influxdb2"
               name: data
-            - mountPath: /backup
+            - mountPath: "/backup"
               name: backup
           resources:
             limits:
