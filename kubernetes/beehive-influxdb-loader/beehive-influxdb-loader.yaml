@@ -14,6 +14,9 @@ spec:
       containers:
         - name: beehive-influxdb-loader
           image: waggle/beehive-influxdb-loader
+          ports:
+            - name: metrics
+              containerPort: 8080
           env:
             - name: RABBITMQ_HOST
               value: "beehive-rabbitmq"
