@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: influxdb
+spec:
+  serviceName: influxdb
+  selector: {}
+  template:
+    spec:
+      containers:
+        - image: influxdb:2.2.0
+          name: influxdb
+          ports:
+            - name: http
+              containerPort: 8086
+          env:
+            - name: INFLUXD_BOLT_PATH
+              value: /var/lib/influxdb2/influxd.bolt
+            - name: INFLUXD_ENGINE_PATH
+              value: /var/lib/influxdb2/engine
+            - name: INFLUX_CONFIGS_PATH
+              value: /var/lib/influxdb2/configs
+          envFrom:
+            - secretRef:
+                name: influxdb-config
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/influxdb2
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: 
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
