@@ -1,0 +1,31 @@
+{
+    "users": [
+        {
+            "name": "beehive-master",
+            "password": "beehive-master",
+            "tags": "administrator"
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [],
+    "topic_permissions": [],
+    "parameters": [],
+    "policies": [],
+    "queues": [],
+    "exchanges": [
+        {
+            "name": "waggle.msg",
+            "vhost": "/",
+            "type": "topic",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": []
+}
