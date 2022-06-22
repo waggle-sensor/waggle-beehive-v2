@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-api
+spec:
+  selector: {}
+  template:
+    spec:
+      containers:
+        - name: data-api
+          image: waggle/beehive-data-api
+          ports:
+            - name: http
+              containerPort: 10000
+          env:
+            - name: INFLUXDB_URL
+              value: "http://influxdb:8086"
+            - name: INFLUXDB_BUCKET
+              value: "waggle"
+            - name: INFLUXDB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: data-api-influxdb-token
+                  key: token
