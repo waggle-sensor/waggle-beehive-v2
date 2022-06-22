@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+commonLabels:
+  app.kubernetes.io/name: influxdb-loader
+secretGenerator:
+  - name: influxdb-loader-credentials
+    files:
+      - "../rabbitmq/credentials/cacert.pem"
+resources:
+  - deployment.yaml

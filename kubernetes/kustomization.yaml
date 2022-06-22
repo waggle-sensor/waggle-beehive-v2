@@ -2,6 +2,14 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 commonLabels:
   app.kubernetes.io/part-of: beehive
+# configMapGenerator:
+#   - name: beehive-tls-ca
+#     files:
+#       - "credentials/cacert.pem"
+#   - name: beehive-ssh-ca
+#     files:
+#       - "credentials/ca.pub"
+#       - "credentials/ca-cert.pub"
 resources:
   - "rabbitmq"
   - "influxdb"

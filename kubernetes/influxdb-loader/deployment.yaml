@@ -1,42 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: beehive-influxdb-loader
+  name: influxdb-loader
 spec:
   selector:
     matchLabels:
-      app: beehive-influxdb-loader
+      app: influxdb-loader
   template:
     metadata:
       labels:
-        app: beehive-influxdb-loader
+        app: influxdb-loader
     spec:
       containers:
-        - name: beehive-influxdb-loader
+        - name: influxdb-loader
           image: waggle/beehive-influxdb-loader
           ports:
             - name: metrics
               containerPort: 8080
           env:
             - name: RABBITMQ_HOST
-              value: "beehive-rabbitmq"
+              value: "rabbitmq"
             - name: RABBITMQ_PORT
-              value: "49191"
+              value: "5671"
             - name: RABBITMQ_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: beehive-influxdb-loader-auth
+                  name: influxdb-loader-auth
                   key: username
             - name: RABBITMQ_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: beehive-influxdb-loader-auth
+                  name: influxdb-loader-auth
                   key: password
             - name: RABBITMQ_CACERTFILE
-              value: "/etc/tls/cacert.pem"
-
+              value: "/etc/credentials/cacert.pem"
             - name: INFLUXDB_URL
-              value: "http://beehive-influxdb:8086"
+              value: "http://influxdb:8086"
             - name: INFLUXDB_BUCKET
               value: "waggle"
             - name: INFLUXDB_ORG
@@ -44,13 +43,13 @@ spec:
             - name: INFLUXDB_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: beehive-influxdb-loader-influxdb-token
+                  name: influxdb-loader-influxdb-token
                   key: token
           volumeMounts:
-            - name: ca-certificate
-              mountPath: "/etc/tls"
+            - name: credentials
+              mountPath: "/etc/credentials"
               readOnly: true
       volumes:
-        - name: ca-certificate
-          configMap:
-            name: beehive-ca-certificate
+        - name: credentials
+          secret:
+            name: influxdb-loader-credentials
