@@ -6,8 +6,8 @@ spec:
   type: LoadBalancer
   ports:
     - name: amqps
-      port: 49191
+      port: 5671
       targetPort: amqps
-    - name: http
-      port: 15672
-      targetPort: http
+    - name: https
+      port: 15671
+      targetPort: https
