@@ -3,8 +3,7 @@ kind: Service
 metadata:
   name: influxdb
 spec:
-  type: LoadBalancer
   ports:
-    - name: influxdb
+    - name: http
       port: 8086
       targetPort: http

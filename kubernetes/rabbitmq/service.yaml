@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: rabbitmq
 spec:
-  type: LoadBalancer
   ports:
     - name: amqps
       port: 5671
