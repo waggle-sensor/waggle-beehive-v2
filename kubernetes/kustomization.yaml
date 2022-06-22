@@ -4,5 +4,5 @@ commonLabels:
   app.kubernetes.io/part-of: beehive
 resources:
   - "rabbitmq"
-  # - "beehive-influxdb"
+  - "influxdb"
   # - "beehive-upload-server"
