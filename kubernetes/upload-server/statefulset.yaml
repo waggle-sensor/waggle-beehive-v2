@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: upload-server
+spec:
+  serviceName: upload-server
+  selector: {}
+  template:
+    spec:
+      containers:
+      - image: waggle/beehive-upload-server
+        name: upload-server
+        env:
+        - name: SSH_CA_PUBKEY
+          value: "/etc/credentials/ca.pub"
+        - name: SSH_HOST_KEY
+          value: "/etc/credentials/ssh-host-key"
+        - name: SSH_HOST_CERT
+          value: "/etc/credentials/ssh-host-key-cert.pub"
+        ports:
+        - name: ssh
+          containerPort: 22
+        - name: api
+          containerPort: 80
+        volumeMounts:
+        - name: credentials
+          mountPath: /etc/credentials
+          readOnly: true
+        - name: home-dirs
+          mountPath: /home
+        livenessProbe:
+          tcpSocket:
+            port: ssh
+          initialDelaySeconds: 5
+          periodSeconds: 60
+      volumes:
+      - name: credentials
+        secret:
+          secretName: upload-server-credentials
+          defaultMode: 0600
+      - name: home-dirs
+        persistentVolumeClaim:
+          claimName: home-dirs
+  volumeClaimTemplates:
+  - metadata:
+      name: home-dirs
+    spec:
+      accessModes: 
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: 10Gi
