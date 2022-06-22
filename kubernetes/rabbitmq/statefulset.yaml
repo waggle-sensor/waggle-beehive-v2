@@ -4,21 +4,10 @@ metadata:
   name: rabbitmq
 spec:
   serviceName: rabbitmq
-  selector:
-    matchLabels:
-      app: rabbitmq
+  selector: {}
   template:
-    metadata:
-      labels:
-        app: rabbitmq
     spec:
       containers:
-      - name: sidecar
-        image: busybox
-        command: ["sh", "-c", "while [ true ] ; do until wget ${sync_url} -O - -q ; do echo could not reach ${sync_url} ... ; sleep 3s ; done ; echo next round in 30 minutes... ; sleep 30m ; done"]
-        envFrom:
-          - configMapRef:
-              name: rabbitmq-env
       - name: rabbitmq
         image: rabbitmq:3.8.11-management-alpine
         volumeMounts:
@@ -54,7 +43,16 @@ spec:
           initialDelaySeconds: 5
           periodSeconds: 15
           timeoutSeconds: 10
+      - name: sidecar
+        image: busybox
+        command: ["sh", "-c", "while [ true ] ; do until wget ${sync_url} -O - -q ; do echo could not reach ${sync_url} ... ; sleep 3s ; done ; echo next round in 30 minutes... ; sleep 30m ; done"]
+        envFrom:
+          - configMapRef:
+              name: rabbitmq-env
       volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: rabbitmq-data
         - name: config
           secret:
             secretName: rabbitmq-config
@@ -64,6 +62,13 @@ spec:
         - name: tls
           secret:
             secretName: beehive-rabbitmq-tls-secret
-        - name: data
-          persistentVolumeClaim:
-            claimName: rabbitmq-data
+  volumeClaimTemplates:
+  - metadata:
+      name: rabbitmq-data
+    spec:
+      accessModes: 
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: "local-path"
