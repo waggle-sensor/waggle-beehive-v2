@@ -8,6 +8,11 @@ secretGenerator:
       - "config/enabled_plugins"
       - "config/rabbitmq.conf"
       - "config/definitions.json"
+  - name: rabbitmq-credentials
+    files:
+      - "credentials/cacert.pem"
+      - "credentials/cert.pem"
+      - "credentials/key.pem"
 configMapGenerator:
   - name: rabbitmq-env
     literals:

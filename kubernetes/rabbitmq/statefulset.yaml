@@ -14,11 +14,8 @@ spec:
           - name: config
             mountPath: /etc/rabbitmq
             readOnly: true
-          - name: ca-certificate
-            mountPath: "/etc/ca"
-            readOnly: true
-          - name: tls
-            mountPath: "/etc/tls"
+          - name: credentials
+            mountPath: "/etc/credentials"
             readOnly: true
           - name: data
             mountPath: /var/lib/rabbitmq
@@ -50,25 +47,21 @@ spec:
           - configMapRef:
               name: rabbitmq-env
       volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: rabbitmq-data
         - name: config
           secret:
             secretName: rabbitmq-config
-        - name: ca-certificate
-          configMap:
-            name: beehive-ca-certificate
-        - name: tls
+        - name: credentials
           secret:
-            secretName: beehive-rabbitmq-tls-secret
+            secretName: rabbitmq-credentials
+        - name: data
+          persistentVolumeClaim:
+            claimName: data
   volumeClaimTemplates:
   - metadata:
-      name: rabbitmq-data
+      name: data
     spec:
       accessModes: 
         - ReadWriteOnce
       resources:
         requests:
           storage: 10Gi
-      storageClassName: "local-path"
