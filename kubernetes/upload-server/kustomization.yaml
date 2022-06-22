@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+secretGenerator:
+  - name: upload-server-credentials
+    files:
+      - "credentials/ca.pub"
+      - "credentials/ca-cert.pub"
+      - "credentials/ssh-host-key"
+      - "credentials/ssh-host-key.pub"
+      - "credentials/ssh-host-key-cert.pub"
+resources:
+  - service.yaml
+  - statefulset.yaml

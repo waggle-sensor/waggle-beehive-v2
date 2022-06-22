@@ -13,14 +13,11 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # token is emitted in second column
-kubectl exec svc/beehive-influxdb -n ${NAMESPACE} -- influx auth create \
+kubectl exec svc/influxdb -n "${NAMESPACE}" -- influx auth create \
     --user waggle \
     --org waggle \
-    --hide-headers ${PERMISSION} | awk '{print $2}'
+    --hide-headers "${PERMISSION}" | awk '{print $2}'
 
 
 #echo "generating token for data loader"
 #echo "token="$(generate_influxdb_token ${PERMISSION})
-
-
-
