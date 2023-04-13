@@ -29,7 +29,7 @@ spec:
         app: beehive-influxdb
     spec:
       containers:
-        - image: influxdb:2.1.1
+        - image: influxdb:2.7.0
           name: beehive-influxdb
           ports:
             - containerPort: 8086
