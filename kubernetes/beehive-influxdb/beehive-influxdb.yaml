@@ -14,12 +14,13 @@ spec:
   type: ClusterIP
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     app: beehive-influxdb
   name: beehive-influxdb
 spec:
+  serviceName: beehive-influxdb
   selector:
     matchLabels:
       app: beehive-influxdb
@@ -54,6 +55,15 @@ spec:
               memory: 32Gi
             limits:
               memory: 32Gi
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: influxdb
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
           livenessProbe:
             exec:
               command:
