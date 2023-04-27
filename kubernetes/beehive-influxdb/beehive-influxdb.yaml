@@ -36,23 +36,24 @@ spec:
               name: influxdb
           env:
             - name: "INFLUXD_BOLT_PATH"
-              value: "/var/lib/influxdb2/influxd.bolt"
+              value: "/var/lib/influxdb2-local/influxd.bolt"
             - name: "INFLUXD_ENGINE_PATH"
-              value: "/var/lib/influxdb2/engine"
+              value: "/var/lib/influxdb2-local/engine"
             - name: "INFLUX_CONFIGS_PATH"
-              value: "/var/lib/influxdb2/configs"
+              value: "/var/lib/influxdb2-local/configs"
           volumeMounts:
             - mountPath: "/var/lib/influxdb2"
               name: data
+            - mountPath: "/var/lib/influxdb2-local"
+              name: data-local
             - mountPath: "/backup"
               name: backup
           resources:
-            limits:
-              cpu: 16000m
-              memory: 32Gi
             requests:
               cpu: 8000m
-              memory: 8Gi
+              memory: 32Gi
+            limits:
+              memory: 32Gi
           livenessProbe:
             exec:
               command:
@@ -68,3 +69,6 @@ spec:
         - name: backup
           persistentVolumeClaim:
             claimName: influxdb-backup
+        - name: data-local
+          persistentVolumeClaim:
+            claimName: influxdb-data-local
