@@ -42,6 +42,8 @@ spec:
               value: "/var/lib/influxdb2-local/engine"
             - name: "INFLUX_CONFIGS_PATH"
               value: "/var/lib/influxdb2-local/configs"
+            - name: INFLUXD_LOG_LEVEL
+              value: "debug"
           volumeMounts:
             - mountPath: "/var/lib/influxdb2"
               name: data
