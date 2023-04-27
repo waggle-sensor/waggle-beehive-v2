@@ -44,6 +44,10 @@ spec:
               value: "/var/lib/influxdb2-local/configs"
             - name: INFLUXD_LOG_LEVEL
               value: "debug"
+            - name: INFLUXD_QUERY_CONCURRENCY
+              value: "25"
+            - name: INFLUXD_QUERY_QUEUE_SIZE
+              value: "25"
           volumeMounts:
             - mountPath: "/var/lib/influxdb2"
               name: data
@@ -53,7 +57,7 @@ spec:
               name: backup
           resources:
             requests:
-              cpu: 8000m
+              cpu: 16000m
               memory: 32Gi
             limits:
               memory: 32Gi
