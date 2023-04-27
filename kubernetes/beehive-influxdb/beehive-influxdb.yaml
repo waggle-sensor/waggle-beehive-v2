@@ -72,9 +72,15 @@ spec:
                 - "influx"
                 - "query"
                 - 'from(bucket: "_monitoring") |> range(start: -10s) |> count()'
-            initialDelaySeconds: 60
-            periodSeconds: 60
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
       volumes:
+        # NOTE(sean) Yes... we have a data and data-local PVC. This was a hack to migrate data from the
+        # original ceph volume (data) to the local ssd volume (data-local) in production. In the future,
+        # we should clean this up.
         - name: data
           persistentVolumeClaim:
             claimName: influxdb-data
